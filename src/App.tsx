@@ -1,8 +1,10 @@
+import { RootLayout } from '~/layouts/RootLayout';
+
 function App() {
   return (
-    <main className="container">
-      <h1>Celeris</h1>
-    </main>
+    <RootLayout>
+      <h1 className="flex-1 text-center">Celeris</h1>
+    </RootLayout>
   );
 }
 

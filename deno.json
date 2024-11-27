@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "@s92/celeris-input": "jsr:@s92/celeris-input@^0.0.1"
-  }
-}
