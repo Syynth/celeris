@@ -1,4 +1,4 @@
-import { setup } from 'xstate';
+import { assign, setup } from 'xstate';
 
 import { Project } from '~/lib/Project';
 
@@ -21,12 +21,13 @@ export const EditorSessionMachine = setup({
     events: {} as EditorSessionEvent,
   },
   actions: {
-    loadProject: ({ context, event }) => {
-      context.project = event.type === 'project.load' ? event.project : null;
-    },
-    unloadProject: ({ context }) => {
-      context.project = null;
-    },
+    loadProject: assign({
+      project: ({ event }) =>
+        event.type === 'project.load' ? event.project : null,
+    }),
+    unloadProject: assign({
+      project: () => null,
+    }),
   },
 }).createMachine({
   id: 'editor-session',
@@ -42,7 +43,7 @@ export const EditorSessionMachine = setup({
         },
         'project.load': {
           target: 'projectLoaded',
-          action: 'loadProject',
+          actions: ['loadProject'],
         },
       },
     },
@@ -50,7 +51,7 @@ export const EditorSessionMachine = setup({
       on: {
         'project.unload': {
           target: 'noProject',
-          action: 'unloadProject',
+          actions: ['unloadProject'],
         },
       },
     },
@@ -58,7 +59,7 @@ export const EditorSessionMachine = setup({
       on: {
         'project.load': {
           target: 'projectLoaded',
-          action: 'loadProject',
+          actions: ['loadProject'],
         },
       },
     },
