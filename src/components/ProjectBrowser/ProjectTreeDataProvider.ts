@@ -22,12 +22,54 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
     };
   }
 
+  public getRootItem = async (): Promise<TreeItem<any>> => {
+    return {
+      data: this.project,
+      index: 'root',
+      isFolder: false,
+      canMove: false,
+      canRename: false,
+      children: Object.keys(this.project.assets),
+    };
+  };
+
   getTreeItem: (itemId: TreeItemIndex) => Promise<TreeItem<any>> =
     async itemId => {
-      const item = this.project.assets.sprites.find(
-        sprite => sprite.id === itemId,
-      );
-      if (item) return this.toTreeItem(item);
+      if (itemId === 'root') return this.getRootItem();
+      if (typeof itemId === 'number') {
+        return null!;
+      }
+      if (itemId in this.project.assets) {
+        return {
+          index: itemId,
+          canMove: false,
+          isFolder: true,
+          children: this.project.assets[itemId as keyof Project['assets']].map(
+            asset => asset.path,
+          ),
+          data: {
+            name: itemId.charAt(0).toUpperCase() + itemId.slice(1),
+          },
+          canRename: false,
+        };
+      }
+
+      const [assetType, ...path] = itemId.split('/');
+      if (path.length === 0) {
+        return null!;
+      }
+      const assetId = [assetType, ...path].join('/');
+
+      const asset = this.project.assets[
+        assetType as keyof Project['assets']
+      ].find(asset => asset.path === assetId);
+
+      console.log({ asset, assetId, itemId, path });
+
+      if (asset) {
+        return this.toTreeItem(asset);
+      }
+
       return null!;
     };
 }

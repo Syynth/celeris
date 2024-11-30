@@ -1,17 +1,24 @@
-import { z } from 'zod';
+import { ZodType, z } from 'zod';
+
+function assetSchema<TAssetData extends ZodType>(data: TAssetData) {
+  return z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      path: z.string(),
+      data,
+    }),
+  );
+}
 
 export const ProjectSchema = z.object({
   name: z.string(),
   settings: z.record(z.unknown()),
   assets: z.object({
-    sprites: z.array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        path: z.string(),
-        data: z.any(),
-      }),
-    ),
+    sprites: assetSchema(z.any()),
+    characters: assetSchema(z.any()),
+    machines: assetSchema(z.any()),
+    maps: assetSchema(z.any()),
   }),
 });
 
@@ -22,7 +29,34 @@ export function newProject(name: string): Project {
     name,
     settings: {},
     assets: {
-      sprites: [],
+      sprites: [
+        {
+          id: '1',
+          name: 'Sprite 1',
+          path: 'sprites/1',
+        },
+      ],
+      characters: [
+        {
+          id: '1',
+          name: 'Character 1',
+          path: 'characters/1',
+        },
+      ],
+      machines: [
+        {
+          id: '1',
+          name: 'Machine 1',
+          path: 'machines/1',
+        },
+      ],
+      maps: [
+        {
+          id: '1',
+          name: 'Map 1',
+          path: 'maps/1',
+        },
+      ],
     },
   };
 }

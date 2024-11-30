@@ -6,7 +6,7 @@ import {
   useMemo,
 } from 'react';
 
-import { Project } from '~/lib/Project';
+import { Project, newProject } from '~/lib/Project';
 
 interface CurrentProjectContextValue {
   project: Project;
@@ -14,13 +14,7 @@ interface CurrentProjectContextValue {
 }
 
 export const CurrentProjectContext = createContext<CurrentProjectContextValue>({
-  project: {
-    name: 'Default Project',
-    settings: {},
-    assets: {
-      sprites: [],
-    },
-  },
+  project: newProject('Default Project'),
   closeProject: async () => {},
 });
 

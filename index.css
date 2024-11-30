@@ -17,3 +17,32 @@ body {
   font-style: normal;
   font-size: 16px;
 }
+
+:root .dark .project-browser {
+  --rct-color-tree-bg: transparent !important;
+  --rct-color-tree-focus-outline: #0366d6;
+
+  --rct-color-focustree-item-selected-bg: var(--nextui-primary-600);
+  --rct-color-focustree-item-selected-text: inherit;
+  --rct-color-focustree-item-focused-border: blue !important;
+  --rct-color-focustree-item-draggingover-bg: teal !important;
+  --rct-color-focustree-item-draggingover-color: inherit;
+
+  --rct-color-nonfocustree-item-selected-bg: cyan !important;
+  --rct-color-nonfocustree-item-selected-text: inherit;
+  --rct-color-nonfocustree-item-focused-border: magenta !important;
+
+  --rct-color-search-highlight-bg: purple !important;
+  --rct-color-drag-between-line-bg: green !important;
+  --rct-color-arrow: #373a3f;
+
+  --rct-item-height: 22px;
+
+  --rct-color-renaming-input-submitbutton-bg: inherit;
+  --rct-color-renaming-input-submitbutton-bg-hover: yellow;
+  --rct-color-renaming-input-submitbutton-bg-active: tomato;
+
+  --rct-color-renaming-input-submitbutton-text: inherit;
+  --rct-color-renaming-input-submitbutton-text-hover: #ffffff;
+  --rct-color-renaming-input-submitbutton-text-active: #ffffff;
+}

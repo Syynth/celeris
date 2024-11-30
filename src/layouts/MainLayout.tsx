@@ -11,7 +11,7 @@ export function MainLayout(props: PropsWithChildren<MainLayoutProps>) {
       <PanelGroup
         direction="horizontal"
         id="group"
-        // autoSaveId="main-layout-persistence"
+        autoSaveId="main-layout-persistence"
       >
         <Panel
           defaultSize={20}
