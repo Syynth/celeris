@@ -14,8 +14,6 @@ import { LoadingSplash } from '~/components/splash/Loading';
 function App() {
   const [state, send] = useMachine(EditorSessionMachine);
 
-  window.machine = state.machine;
-
   useEffect(() => {
     loadProject().then(project => {
       if (project) {
