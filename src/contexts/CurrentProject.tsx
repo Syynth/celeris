@@ -17,7 +17,9 @@ export const CurrentProjectContext = createContext<CurrentProjectContextValue>({
   project: {
     name: 'Default Project',
     settings: {},
-    assets: {},
+    assets: {
+      sprites: [],
+    },
   },
   closeProject: async () => {},
 });

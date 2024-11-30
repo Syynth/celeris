@@ -6,10 +6,12 @@ import { MainLayout } from '~/layouts/MainLayout';
 import { RootLayout } from '~/layouts/RootLayout';
 import { EditorSessionMachine } from '~/machines/EditorSession';
 
-import { loadProject, saveProject } from '~/lib/Project';
+import { loadProject, newProject, saveProject } from '~/lib/Project';
 
 import { CreateProjectSplash } from '~/components/splash/CreateProject';
 import { LoadingSplash } from '~/components/splash/Loading';
+
+import { ProjectBrowser } from './components/ProjectBrowser';
 
 function App() {
   const [state, send] = useMachine(EditorSessionMachine);
@@ -25,7 +27,7 @@ function App() {
   }, []);
 
   async function createProject(projectName: string) {
-    const project = { name: projectName, settings: {}, assets: {} };
+    const project = newProject(projectName);
     await saveProject(project);
     send({ type: 'project.load', project });
   }
@@ -51,8 +53,8 @@ function App() {
               project={state.context.project}
               closeProject={closeProject}
             >
-              <MainLayout>
-                Project! {state.context.project?.name ?? '<Unknown>'}{' '}
+              <MainLayout sidebar={<ProjectBrowser />}>
+                <p>Project Loaded</p>
                 <button onClick={closeProject}>close</button>
               </MainLayout>
             </CurrentProjectProvider>
