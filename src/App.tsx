@@ -36,10 +36,17 @@ function App() {
     send({ type: 'project.unload' });
   }
 
+  function runProject(saveFile: any) {
+    send({ type: 'project.run', saveFile });
+  }
+
+  function stopProject() {
+    send({ type: 'project.stop' });
+  }
+
   return (
     <RootLayout>
       {match(state)
-        .with({ value: 'startup' }, () => <LoadingSplash />)
         .with({ value: 'noProject' }, () => (
           <CreateProjectSplash onCreateProject={createProject} />
         ))
@@ -47,20 +54,34 @@ function App() {
           <CreateProjectSplash onCreateProject={createProject} />
         ))
         .with(
-          { value: 'projectLoaded', context: { project: P.nonNullable } },
+          {
+            value: 'projectLoaded',
+            context: { project: P.nonNullable },
+          },
+          {
+            value: 'projectRunning',
+            context: { project: P.nonNullable },
+          },
           state => (
             <CurrentProjectProvider
               project={state.context.project}
               closeProject={closeProject}
             >
-              <MainLayout sidebar={<ProjectBrowser />}>
+              <MainLayout
+                isRunning={state.value === 'projectRunning'}
+                sidebar={<ProjectBrowser />}
+                stopProject={stopProject}
+                runProject={runProject}
+              >
                 <p>Project Loaded</p>
                 <button onClick={closeProject}>close</button>
               </MainLayout>
             </CurrentProjectProvider>
           ),
         )
-        .exhaustive()}
+        .otherwise(() => (
+          <LoadingSplash />
+        ))}
     </RootLayout>
   );
 }
