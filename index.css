@@ -39,7 +39,7 @@ body {
   --rct-item-height: 22px;
 
   --rct-color-renaming-input-submitbutton-bg: inherit;
-  --rct-color-renaming-input-submitbutton-bg-hover: yellow;
+  --rct-color-renaming-input-submitbutton-bg-hover: yellow !important;
   --rct-color-renaming-input-submitbutton-bg-active: tomato;
 
   --rct-color-renaming-input-submitbutton-text: inherit;

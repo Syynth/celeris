@@ -12,6 +12,7 @@ import { CreateProjectSplash } from '~/components/splash/CreateProject';
 import { LoadingSplash } from '~/components/splash/Loading';
 
 import { ProjectBrowser } from './components/ProjectBrowser';
+import { ProjectViewFrame } from './components/ProjectView';
 
 function App() {
   const [state, send] = useMachine(EditorSessionMachine);
@@ -73,8 +74,7 @@ function App() {
                 stopProject={stopProject}
                 runProject={runProject}
               >
-                <p>Project Loaded</p>
-                <button onClick={closeProject}>close</button>
+                <ProjectViewFrame />
               </MainLayout>
             </CurrentProjectProvider>
           ),

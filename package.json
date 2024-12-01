@@ -26,6 +26,7 @@
     "react-resizable-panels": "^2.1.7",
     "tailwindcss": "^3.4.15",
     "ts-pattern": "^5.5.0",
+    "uuid": "^11.0.3",
     "xstate": "^5.19.0",
     "zod": "^3.23.8"
   },

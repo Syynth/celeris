@@ -23,16 +23,12 @@ export function MainLayout(props: PropsWithChildren<MainLayoutProps>) {
         id="group"
         autoSaveId="main-layout-persistence"
       >
-        <Panel
-          defaultSize={20}
-          className="rounded-md bg-white/10"
-          id="left-panel"
-        >
-          {props.sidebar}
+        <Panel defaultSize={20} className="p-1 pr-0" id="left-panel">
+          <div className="h-full rounded-md bg-white/10">{props.sidebar}</div>
         </Panel>
-        <PanelResizeHandle className="bg-red-500" id="resize-handle" />
-        <Panel defaultSize={80} id="right-panel">
-          {props.children}
+        <PanelResizeHandle id="resize-handle" />
+        <Panel defaultSize={80} id="right-panel" className="p-1">
+          <div className="h-full rounded-md bg-white/10">{props.children}</div>
         </Panel>
       </PanelGroup>
     </main>

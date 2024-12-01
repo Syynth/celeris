@@ -1,6 +1,6 @@
 import { TreeDataProvider, TreeItem, TreeItemIndex } from 'react-complex-tree';
 
-import { Project } from '~/lib/Project';
+import { Project, assetById } from '~/lib/Project';
 
 export class ProjectTreeDataProvider implements TreeDataProvider {
   private project: Project;
@@ -18,7 +18,7 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
       children: [],
       isFolder: false,
       data: asset,
-      index: asset.path,
+      index: asset.id,
     };
   }
 
@@ -35,17 +35,19 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
 
   getTreeItem: (itemId: TreeItemIndex) => Promise<TreeItem<any>> =
     async itemId => {
+      console.log('getTreeItem', { itemId });
       if (itemId === 'root') return this.getRootItem();
       if (typeof itemId === 'number') {
         return null!;
       }
+
       if (itemId in this.project.assets) {
         return {
           index: itemId,
           canMove: false,
           isFolder: true,
           children: this.project.assets[itemId as keyof Project['assets']].map(
-            asset => asset.path,
+            asset => asset.id,
           ),
           data: {
             name: itemId.charAt(0).toUpperCase() + itemId.slice(1),
@@ -54,18 +56,9 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
         };
       }
 
-      const [assetType, ...path] = itemId.split('/');
-      if (path.length === 0) {
-        return null!;
-      }
-      const assetId = [assetType, ...path].join('/');
+      const asset = assetById(this.project, itemId);
 
-      const asset = this.project.assets[
-        assetType as keyof Project['assets']
-      ].find(asset => asset.path === assetId);
-
-      console.log({ asset, assetId, itemId, path });
-
+      console.log('found asset:', { asset });
       if (asset) {
         return this.toTreeItem(asset);
       }
