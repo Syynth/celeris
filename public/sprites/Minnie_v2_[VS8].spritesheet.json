@@ -1,0 +1,91 @@
+{
+  "frames": {
+    "1.png": {
+      "frame": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "2.png": {
+      "frame": { "x": 192, "y": 0, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "3.png": {
+      "frame": { "x": 384, "y": 0, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "4.png": {
+      "frame": { "x": 0, "y": 192, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "5.png": {
+      "frame": { "x": 192, "y": 192, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "6.png": {
+      "frame": { "x": 384, "y": 192, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "7.png": {
+      "frame": { "x": 0, "y": 384, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "8.png": {
+      "frame": { "x": 192, "y": 384, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "9.png": {
+      "frame": { "x": 384, "y": 384, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "10.png": {
+      "frame": { "x": 0, "y": 576, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "11.png": {
+      "frame": { "x": 192, "y": 576, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    },
+    "12.png": {
+      "frame": { "x": 384, "y": 576, "w": 192, "h": 192 },
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 192 },
+      "sourceSize": { "w": 192, "h": 192 },
+      "anchor": { "x": 96, "y": 192 }
+    }
+  },
+  "animations": {
+    "idle_down": ["2.png"],
+    "idle_left": ["5.png"],
+    "idle_right": ["8.png"],
+    "idle_up": ["11.png"],
+    "walk_up": ["10.png", "11.png", "12.png", "11.png"],
+    "walk_down": ["1.png", "2.png", "3.png", "2.png"],
+    "walk_left": ["4.png", "5.png", "6.png", "5.png"],
+    "walk_right": ["7.png", "8.png", "9.png", "8.png"]
+  },
+  "meta": {
+    "image": "Minnie_v2_[VS8].png",
+    "size": { "x": 2304, "y": 1536 },
+    "scale": 1
+  }
+}

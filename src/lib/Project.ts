@@ -1,12 +1,16 @@
 import { v4 } from 'uuid';
 import { ZodType, z } from 'zod';
 
-function assetSchema<TAssetData extends ZodType>(data: TAssetData) {
+function assetSchema<
+  TAssetData extends ZodType,
+  const TAssetType extends string,
+>(asset: TAssetType, data: TAssetData) {
   return z.array(
     z.object({
       id: z.string(),
       name: z.string(),
       path: z.string(),
+      type: z.literal(asset),
       data,
     }),
   );
@@ -16,11 +20,11 @@ export const ProjectSchema = z.object({
   name: z.string(),
   settings: z.record(z.unknown()),
   assets: z.object({
-    sprites: assetSchema(z.any()),
-    characters: assetSchema(z.any()),
-    machines: assetSchema(z.any()),
-    maps: assetSchema(z.any()),
-    scenes: assetSchema(z.any()),
+    sprites: assetSchema('sprite', z.any()),
+    characters: assetSchema('character', z.any()),
+    machines: assetSchema('machine', z.any()),
+    maps: assetSchema('map', z.any()),
+    scenes: assetSchema('scene', z.any()),
   }),
 });
 
@@ -34,6 +38,7 @@ export function newProject(name: string): Project {
       sprites: [
         {
           id: v4(),
+          type: 'sprite',
           name: 'Sprite 1',
           path: 'sprites/1',
         },
@@ -43,6 +48,7 @@ export function newProject(name: string): Project {
           id: v4(),
           name: 'Character 1',
           path: 'characters/1',
+          type: 'character',
         },
       ],
       machines: [
@@ -50,6 +56,7 @@ export function newProject(name: string): Project {
           id: v4(),
           name: 'Machine 1',
           path: 'machines/1',
+          type: 'machine',
         },
       ],
       maps: [
@@ -57,6 +64,7 @@ export function newProject(name: string): Project {
           id: v4(),
           name: 'Map 1',
           path: 'maps/1',
+          type: 'map',
         },
       ],
       scenes: [
@@ -64,6 +72,7 @@ export function newProject(name: string): Project {
           id: v4(),
           name: 'Scene 1',
           path: 'scenes/1',
+          type: 'scene',
         },
       ],
     },

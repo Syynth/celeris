@@ -1,24 +1,25 @@
 import { Tab, Tabs } from '@nextui-org/react';
+import { Suspense } from 'react';
 import { IoCloseSharp } from 'react-icons/io5';
-import {
-  useCurrentProject,
-  useOpenAssetControls,
-  useOpenAssetIds,
-} from '~/contexts/CurrentProject';
+import { useOpenAssetControls, useOpenAssets } from '~/contexts/CurrentProject';
 
-import { assetById } from '~/lib/Project';
+import { GameView } from './GameView';
 
-interface ProjectViewFrameProps {}
+interface ProjectViewFrameProps {
+  isGameRunning: boolean;
+}
 
-export function ProjectViewFrame({}: ProjectViewFrameProps) {
-  const project = useCurrentProject();
+export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
   const { closeAsset } = useOpenAssetControls();
-  const openAssets = useOpenAssetIds()
-    .map(assetId => assetById(project, assetId))
-    .filter(asset => asset !== null) as {
-    id: string;
-    name: string;
-  }[];
+  const openAssets = useOpenAssets();
+
+  if (isGameRunning) {
+    return (
+      <Suspense fallback={<div>loading...</div>}>
+        <GameView />
+      </Suspense>
+    );
+  }
 
   return (
     <Tabs variant="solid" size="sm" aria-label="Open Assets" items={openAssets}>
@@ -29,12 +30,14 @@ export function ProjectViewFrame({}: ProjectViewFrameProps) {
           title={
             <div className="p-y-0 flex flex-row items-center p-6">
               <div>{asset.name}</div>
-              <button
-                onClick={() => closeAsset(asset.id)}
-                className="absolute right-0 opacity-0 group-hover:opacity-100"
-              >
-                <IoCloseSharp />
-              </button>
+              {openAssets.length > 1 && (
+                <button
+                  onClick={() => closeAsset(asset.id)}
+                  className="absolute right-0 opacity-0 group-hover:opacity-100"
+                >
+                  <IoCloseSharp />
+                </button>
+              )}
             </div>
           }
         >

@@ -6,3 +6,10 @@ export const SaveFileSchema = z.object({
 });
 
 export type SaveFile = z.infer<typeof SaveFileSchema>;
+
+export function newSaveFile(index: number): SaveFile {
+  return {
+    index,
+    data: {},
+  };
+}

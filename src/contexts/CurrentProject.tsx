@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 
-import { Project, newProject } from '~/lib/Project';
+import { Project, assetById, newProject } from '~/lib/Project';
 
 interface CurrentProjectContextValue {
   project: Project;
@@ -80,6 +80,18 @@ export function useCurrentProject(): Project {
 
 export function useOpenAssetIds(): string[] {
   return useContext(CurrentProjectContext).openAssets;
+}
+
+export function useOpenAssets(): { id: string; name: string }[] {
+  const project = useCurrentProject();
+  const openAssets = useOpenAssetIds()
+    .map(assetId => assetById(project, assetId))
+    .filter(asset => asset !== null) as {
+    id: string;
+    name: string;
+  }[];
+
+  return openAssets;
 }
 
 export function useOpenAssetControls() {

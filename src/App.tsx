@@ -74,7 +74,9 @@ function App() {
                 stopProject={stopProject}
                 runProject={runProject}
               >
-                <ProjectViewFrame />
+                <ProjectViewFrame
+                  isGameRunning={state.value === 'projectRunning'}
+                />
               </MainLayout>
             </CurrentProjectProvider>
           ),
