@@ -2,16 +2,14 @@ import { basename, resolve } from '@tauri-apps/api/path';
 import { readDir, stat } from '@tauri-apps/plugin-fs';
 import { TreeDataProvider, TreeItem, TreeItemIndex } from 'react-complex-tree';
 
-import { Project, ProjectReference } from '~/lib/Project';
+import { ProjectReference } from '~/lib/Project';
 
 export class ProjectTreeDataProvider implements TreeDataProvider {
   private path: string;
-  private project: Project;
   private basePath: Promise<string>;
 
   constructor(project: ProjectReference) {
     this.path = project.path;
-    this.project = project.project;
 
     async function computeBasePath() {
       const resolved = await resolve(project.path, '..');
@@ -30,7 +28,9 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
         .map(async c => await resolve(basePath, c.name)),
     );
     return {
-      data: this.project,
+      data: {
+        name: await basename(basePath),
+      },
       index: this.path,
       isFolder: false,
       canMove: false,

@@ -1,5 +1,4 @@
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
-import { v4 } from 'uuid';
 import { ZodType, z } from 'zod';
 
 const RECENT_PROJECTS = 's92.celeris.recent-projects';
@@ -61,46 +60,11 @@ export function newProject(name: string): Project {
     name,
     settings: {},
     assets: {
-      sprites: [
-        {
-          id: v4(),
-          type: 'sprite',
-          name: 'Sprite 1',
-          path: 'sprites/1',
-        },
-      ],
-      characters: [
-        {
-          id: v4(),
-          name: 'Character 1',
-          path: 'characters/1',
-          type: 'character',
-        },
-      ],
-      machines: [
-        {
-          id: v4(),
-          name: 'Machine 1',
-          path: 'machines/1',
-          type: 'machine',
-        },
-      ],
-      maps: [
-        {
-          id: v4(),
-          name: 'Map 1',
-          path: 'maps/1',
-          type: 'map',
-        },
-      ],
-      scenes: [
-        {
-          id: v4(),
-          name: 'Scene 1',
-          path: 'scenes/1',
-          type: 'scene',
-        },
-      ],
+      sprites: [],
+      characters: [],
+      machines: [],
+      maps: [],
+      scenes: [],
     },
   };
 }
