@@ -1,5 +1,5 @@
+import { save } from '@tauri-apps/plugin-dialog';
 import { useMachine } from '@xstate/react';
-import { useEffect } from 'react';
 import { P, match } from 'ts-pattern';
 import { CurrentProjectProvider } from '~/contexts/CurrentProject';
 import { MainLayout } from '~/layouts/MainLayout';
@@ -13,24 +13,26 @@ import { LoadingSplash } from '~/components/splash/Loading';
 
 import { ProjectBrowser } from './components/ProjectBrowser';
 import { ProjectViewFrame } from './components/ProjectView';
+import { RecentProjects } from './components/splash/RecentProjects';
 
 function App() {
   const [state, send] = useMachine(EditorSessionMachine);
 
-  useEffect(() => {
-    loadProject().then(project => {
-      if (project) {
-        send({ type: 'project.load', project });
-      } else {
-        send({ type: 'project.not-found' });
-      }
-    });
-  }, []);
-
   async function createProject(projectName: string) {
     const project = newProject(projectName);
-    await saveProject(project);
-    send({ type: 'project.load', project });
+    const path = await save({
+      defaultPath: projectName,
+      filters: [{ name: 'Celeris Project', extensions: ['celeris'] }],
+    });
+    if (path) {
+      const ref = { project, path };
+      await saveProject(ref);
+      send({ type: 'project.load', project: ref });
+    }
+  }
+
+  async function startProjectCreation() {
+    send({ type: 'project.create' });
   }
 
   async function closeProject() {
@@ -45,10 +47,23 @@ function App() {
     send({ type: 'project.stop' });
   }
 
+  async function tryLoadProject(path: string) {
+    const project = await loadProject(path);
+    if (project) {
+      send({ type: 'project.load', project: { path, project } });
+    }
+  }
+
   return (
     <RootLayout>
       {match(state)
-        .with({ value: 'noProject' }, () => (
+        .with({ value: 'recentProjectSelection' }, () => (
+          <RecentProjects
+            onRequestLoad={tryLoadProject}
+            onRequestCreation={startProjectCreation}
+          />
+        ))
+        .with({ value: 'projectCreation' }, () => (
           <CreateProjectSplash onCreateProject={createProject} />
         ))
         .with({ value: 'projectLoaded', context: { project: null } }, () => (

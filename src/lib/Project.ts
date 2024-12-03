@@ -1,5 +1,15 @@
+import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { v4 } from 'uuid';
 import { ZodType, z } from 'zod';
+
+const RECENT_PROJECTS = 's92.celeris.recent-projects';
+
+export type ProjectReference = {
+  project: Project;
+  path: string;
+};
+
+const recentProjectsSchema = z.array(z.string());
 
 function assetSchema<
   TAssetData extends ZodType,
@@ -27,6 +37,22 @@ export const ProjectSchema = z.object({
     scenes: assetSchema('scene', z.any()),
   }),
 });
+
+export function listRecentProjects(): string[] {
+  const recentsJson = localStorage.getItem(RECENT_PROJECTS);
+  try {
+    return recentProjectsSchema.parse(JSON.parse(recentsJson ?? ''));
+  } catch (error) {
+    return [];
+  }
+}
+
+export function addRecentProject(projectName: string): void {
+  let recents = listRecentProjects();
+  recents.unshift(projectName);
+  recents = Array.from(new Set(recents)).slice(0, 5);
+  localStorage.setItem(RECENT_PROJECTS, JSON.stringify(recents));
+}
 
 export type Project = z.infer<typeof ProjectSchema>;
 
@@ -79,19 +105,23 @@ export function newProject(name: string): Project {
   };
 }
 
-export async function loadProject(): Promise<Project | null> {
-  const projectJson = localStorage.getItem('project');
+export async function loadProject(path: string): Promise<Project | null> {
   try {
+    const projectJson = await readTextFile(path);
     const rawProject = JSON.parse(projectJson ?? '');
     return ProjectSchema.parse(rawProject);
   } catch (error) {
+    console.error('Failed to load project', { error, path });
     return null;
   }
 }
 
-export async function saveProject(project: Project): Promise<void> {
-  localStorage.setItem('project', JSON.stringify(project));
-  return await Promise.resolve();
+export async function saveProject({
+  project,
+  path,
+}: ProjectReference): Promise<void> {
+  addRecentProject(path);
+  return await writeTextFile(path, JSON.stringify(project, null, 2));
 }
 
 export function assetById(

@@ -8,26 +8,34 @@ import {
   useState,
 } from 'react';
 
-import { Project, assetById, newProject } from '~/lib/Project';
+import {
+  Project,
+  ProjectReference,
+  assetById,
+  newProject,
+  saveProject,
+} from '~/lib/Project';
 
 interface CurrentProjectContextValue {
-  project: Project;
+  project: ProjectReference;
   closeProject: () => Promise<void>;
   openAssets: string[];
+  saveProject: () => Promise<void>;
   openAsset: (assetId: string) => void;
   closeAsset: (assetId: string) => void;
 }
 
 export const CurrentProjectContext = createContext<CurrentProjectContextValue>({
-  project: newProject('Default Project'),
+  project: { project: newProject('Default Project'), path: '' },
   closeProject: async () => {},
+  saveProject: async () => {},
   openAssets: [],
   openAsset: () => {},
   closeAsset: () => {},
 });
 
 interface CurrentProjectProviderProps {
-  project: Project;
+  project: ProjectReference;
   closeProject: () => Promise<void>;
 }
 
@@ -56,15 +64,20 @@ export function CurrentProjectProvider({
     [openAssets],
   );
 
+  const saveProject_ = useCallback(async () => {
+    await saveProject(project);
+  }, [project]);
+
   const value = useMemo(
     () => ({
       project,
       closeProject,
+      saveProject: saveProject_,
       openAssets,
       openAsset,
       closeAsset,
     }),
-    [project, closeProject, openAssets, openAsset, closeAsset],
+    [project, saveProject, closeProject, openAssets, openAsset, closeAsset],
   );
 
   return (
@@ -75,7 +88,7 @@ export function CurrentProjectProvider({
 }
 
 export function useCurrentProject(): Project {
-  return useContext(CurrentProjectContext).project;
+  return useContext(CurrentProjectContext).project.project;
 }
 
 export function useOpenAssetIds(): string[] {

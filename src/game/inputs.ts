@@ -30,7 +30,7 @@ export const PlayerBindings: ActionBinding[] = [
     action: PlayerActions.Up,
     bindings: [
       {
-        adapter: new KeyboardButtonAdapter('W'),
+        adapter: new KeyboardButtonAdapter('KeyW'),
         device: DeviceType.Keyboard,
         inputId: 'Player/Up/W',
       },
@@ -45,7 +45,7 @@ export const PlayerBindings: ActionBinding[] = [
     action: PlayerActions.Down,
     bindings: [
       {
-        adapter: new KeyboardButtonAdapter('S'),
+        adapter: new KeyboardButtonAdapter('KeyS'),
         device: DeviceType.Keyboard,
         inputId: 'Player/Down/S',
       },
@@ -60,7 +60,7 @@ export const PlayerBindings: ActionBinding[] = [
     action: PlayerActions.Left,
     bindings: [
       {
-        adapter: new KeyboardButtonAdapter('A'),
+        adapter: new KeyboardButtonAdapter('KeyA'),
         device: DeviceType.Keyboard,
         inputId: 'Player/Left/A',
       },
@@ -75,7 +75,7 @@ export const PlayerBindings: ActionBinding[] = [
     action: PlayerActions.Right,
     bindings: [
       {
-        adapter: new KeyboardButtonAdapter('D'),
+        adapter: new KeyboardButtonAdapter('KeyD'),
         device: DeviceType.Keyboard,
         inputId: 'Player/Right/D',
       },
