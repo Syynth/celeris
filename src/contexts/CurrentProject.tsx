@@ -87,8 +87,12 @@ export function CurrentProjectProvider({
   );
 }
 
+export function useCurrentProjectReference(): ProjectReference {
+  return useContext(CurrentProjectContext).project;
+}
+
 export function useCurrentProject(): Project {
-  return useContext(CurrentProjectContext).project.project;
+  return useCurrentProjectReference().project;
 }
 
 export function useOpenAssetIds(): string[] {

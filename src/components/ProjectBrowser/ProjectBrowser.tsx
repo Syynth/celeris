@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Tree, UncontrolledTreeEnvironment } from 'react-complex-tree';
 import 'react-complex-tree/lib/style-modern.css';
 import {
-  useCurrentProject,
+  useCurrentProjectReference,
   useOpenAssetControls,
 } from '~/contexts/CurrentProject';
 
@@ -11,7 +11,7 @@ import { ProjectTreeDataProvider } from './ProjectTreeDataProvider';
 interface ProjectBrowserProps {}
 
 export function ProjectBrowser(_: ProjectBrowserProps) {
-  const project = useCurrentProject();
+  const project = useCurrentProjectReference();
   const { openAsset } = useOpenAssetControls();
   const dataProvider = useMemo(
     () => new ProjectTreeDataProvider(project),
@@ -33,7 +33,11 @@ export function ProjectBrowser(_: ProjectBrowserProps) {
         }}
         viewState={{}}
       >
-        <Tree treeId="tree-1" rootItem="root" treeLabel="Tree Example" />
+        <Tree
+          treeId="tree-1"
+          rootItem={project.path}
+          treeLabel="Tree Example"
+        />
       </UncontrolledTreeEnvironment>
     </div>
   );

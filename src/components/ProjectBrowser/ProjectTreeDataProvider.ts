@@ -1,68 +1,72 @@
+import { basename, resolve } from '@tauri-apps/api/path';
+import { readDir, stat } from '@tauri-apps/plugin-fs';
 import { TreeDataProvider, TreeItem, TreeItemIndex } from 'react-complex-tree';
 
-import { Project, assetById } from '~/lib/Project';
+import { Project, ProjectReference } from '~/lib/Project';
 
 export class ProjectTreeDataProvider implements TreeDataProvider {
+  private path: string;
   private project: Project;
+  private basePath: Promise<string>;
 
-  constructor(project: Project) {
-    this.project = project;
-  }
+  constructor(project: ProjectReference) {
+    this.path = project.path;
+    this.project = project.project;
 
-  private toTreeItem<Asset extends { id: string; path: string; name: string }>(
-    asset: Asset,
-  ): TreeItem<Asset> {
-    return {
-      canMove: false,
-      canRename: false,
-      children: [],
-      isFolder: false,
-      data: asset,
-      index: asset.id,
-    };
+    async function computeBasePath() {
+      const resolved = await resolve(project.path, '..');
+      return resolved;
+    }
+
+    this.basePath = computeBasePath();
   }
 
   public getRootItem = async (): Promise<TreeItem<any>> => {
+    const basePath = await this.basePath;
+    const entries = await readDir(basePath);
+    const children = await Promise.all(
+      entries
+        .filter(c => !c.name.startsWith('.'))
+        .map(async c => await resolve(basePath, c.name)),
+    );
     return {
       data: this.project,
-      index: 'root',
+      index: this.path,
       isFolder: false,
       canMove: false,
       canRename: false,
-      children: Object.keys(this.project.assets),
+      children,
     };
   };
 
   getTreeItem: (itemId: TreeItemIndex) => Promise<TreeItem<any>> =
     async itemId => {
-      console.log('getTreeItem', { itemId });
-      if (itemId === 'root') return this.getRootItem();
+      if (itemId === this.path) return this.getRootItem();
       if (typeof itemId === 'number') {
         return null!;
       }
 
-      if (itemId in this.project.assets) {
-        return {
-          index: itemId,
-          canMove: false,
-          isFolder: true,
-          children: this.project.assets[itemId as keyof Project['assets']].map(
-            asset => asset.id,
-          ),
-          data: {
-            name: itemId.charAt(0).toUpperCase() + itemId.slice(1),
-          },
-          canRename: false,
-        };
-      }
+      const fileInfo = await stat(itemId);
 
-      const asset = assetById(this.project, itemId);
+      console.log('getTreeItem', { itemId, fileInfo });
 
-      console.log('found asset:', { asset });
-      if (asset) {
-        return this.toTreeItem(asset);
-      }
+      const children = fileInfo.isDirectory
+        ? await Promise.all(
+            (await readDir(itemId)).map(c => resolve(itemId, c.name)),
+          )
+        : [];
 
-      return null!;
+      console.log('children', { children });
+
+      return {
+        index: itemId,
+        canMove: false,
+        isFolder: fileInfo.isDirectory,
+        children,
+        data: {
+          name: await basename(itemId),
+        },
+        canRename: false,
+      };
     };
 }
