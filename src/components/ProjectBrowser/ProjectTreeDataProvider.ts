@@ -2,6 +2,7 @@ import { basename, resolve } from '@tauri-apps/api/path';
 import { readDir, stat } from '@tauri-apps/plugin-fs';
 import { TreeDataProvider, TreeItem, TreeItemIndex } from 'react-complex-tree';
 
+import { getProjectDirectory } from '~/lib/Assets';
 import { ProjectReference } from '~/lib/Project';
 
 export class ProjectTreeDataProvider implements TreeDataProvider {
@@ -10,13 +11,7 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
 
   constructor(project: ProjectReference) {
     this.path = project.path;
-
-    async function computeBasePath() {
-      const resolved = await resolve(project.path, '..');
-      return resolved;
-    }
-
-    this.basePath = computeBasePath();
+    this.basePath = getProjectDirectory(project);
   }
 
   public getRootItem = async (): Promise<TreeItem<any>> => {
@@ -24,7 +19,7 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
     const entries = await readDir(basePath);
     const children = await Promise.all(
       entries
-        .filter(c => !c.name.startsWith('.'))
+        .filter(c => !c.name.startsWith('.') && !c.name.endsWith('.meta'))
         .map(async c => await resolve(basePath, c.name)),
     );
     return {
@@ -48,15 +43,15 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
 
       const fileInfo = await stat(itemId);
 
-      console.log('getTreeItem', { itemId, fileInfo });
-
       const children = fileInfo.isDirectory
-        ? await Promise.all(
-            (await readDir(itemId)).map(c => resolve(itemId, c.name)),
-          )
+        ? (
+            await Promise.all(
+              (await readDir(itemId))
+                .filter(c => c.isDirectory || !c.name.endsWith('.meta'))
+                .map(c => resolve(itemId, c.name)),
+            )
+          ).filter(c => c)
         : [];
-
-      console.log('children', { children });
 
       return {
         index: itemId,

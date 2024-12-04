@@ -1,5 +1,12 @@
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
-import { ZodType, z } from 'zod';
+import { z } from 'zod';
+
+import {
+  AssetRef,
+  AssetRefSchema,
+  importAsset,
+  recursivelyFindAllAssets,
+} from './Assets';
 
 const RECENT_PROJECTS = 's92.celeris.recent-projects';
 
@@ -10,31 +17,10 @@ export type ProjectReference = {
 
 const recentProjectsSchema = z.array(z.string());
 
-function assetSchema<
-  TAssetData extends ZodType,
-  const TAssetType extends string,
->(asset: TAssetType, data: TAssetData) {
-  return z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      path: z.string(),
-      type: z.literal(asset),
-      data,
-    }),
-  );
-}
-
 export const ProjectSchema = z.object({
   name: z.string(),
   settings: z.record(z.unknown()),
-  assets: z.object({
-    sprites: assetSchema('sprite', z.any()),
-    characters: assetSchema('character', z.any()),
-    machines: assetSchema('machine', z.any()),
-    maps: assetSchema('map', z.any()),
-    scenes: assetSchema('scene', z.any()),
-  }),
+  assets: z.record(z.string(), AssetRefSchema),
 });
 
 export function listRecentProjects(): string[] {
@@ -59,13 +45,7 @@ export function newProject(name: string): Project {
   return {
     name,
     settings: {},
-    assets: {
-      sprites: [],
-      characters: [],
-      machines: [],
-      maps: [],
-      scenes: [],
-    },
+    assets: {},
   };
 }
 
@@ -88,16 +68,29 @@ export async function saveProject({
   return await writeTextFile(path, JSON.stringify(project, null, 2));
 }
 
-export function assetById(
-  project: Project,
-  assetId: string,
-): { id: string; name: string; path: string } | null {
-  for (const assetType of Object.values(project.assets)) {
-    for (const asset of assetType) {
-      if (asset.id === assetId) {
-        return asset;
-      }
+export async function importProjectAssets(project: ProjectReference) {
+  const { imported, unimported } = await recursivelyFindAllAssets(project);
+
+  const newAssetRefs: AssetRef[] = [];
+  for (const asset of unimported) {
+    const ref = await importAsset(project, asset);
+    if (ref) {
+      newAssetRefs.push(ref);
     }
   }
-  return null;
+  const knownMetaFiles: AssetRef[] = (
+    await Promise.all(
+      imported.map(i =>
+        readTextFile(i.fullPath + '.meta').then(text => [text, i.fullPath]),
+      ),
+    )
+  ).map(
+    ([text, lastKnownPath]) =>
+      ({ ...JSON.parse(text), lastKnownPath }) as AssetRef,
+  );
+
+  project.project.assets = Object.fromEntries(
+    newAssetRefs.concat(knownMetaFiles).map(m => [m.id, m]),
+  );
+  await saveProject(project);
 }

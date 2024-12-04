@@ -2,10 +2,15 @@
   "name": "Demo",
   "settings": {},
   "assets": {
-    "sprites": [],
-    "characters": [],
-    "machines": [],
-    "maps": [],
-    "scenes": []
+    "c59ad396-13fd-4f39-9272-929a3522baa3": {
+      "id": "c59ad396-13fd-4f39-9272-929a3522baa3",
+      "assetType": "sprite",
+      "lastKnownPath": "/Users/syynth/code/js/@s92/celeris/demo-project/sprites/celeris-logo copy.png"
+    },
+    "e388b1ce-4b1b-498f-abe9-1c6e799010f7": {
+      "id": "e388b1ce-4b1b-498f-abe9-1c6e799010f7",
+      "assetType": "sprite",
+      "lastKnownPath": "/Users/syynth/code/js/@s92/celeris/demo-project/sprites/celeris-logo.png"
+    }
   }
 }

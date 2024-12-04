@@ -30,8 +30,12 @@ export const EditorSessionMachine = setup({
   },
   actions: {
     loadProject: assign({
-      project: ({ event }) =>
-        event.type === 'project.load' ? event.project : null,
+      project: ({ event }) => {
+        if (event.type === 'project.load') {
+          return event.project;
+        }
+        return null;
+      },
     }),
     unloadProject: assign({
       project: () => null,

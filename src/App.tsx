@@ -6,7 +6,12 @@ import { MainLayout } from '~/layouts/MainLayout';
 import { RootLayout } from '~/layouts/RootLayout';
 import { EditorSessionMachine } from '~/machines/EditorSession';
 
-import { loadProject, newProject, saveProject } from '~/lib/Project';
+import {
+  importProjectAssets,
+  loadProject,
+  newProject,
+  saveProject,
+} from '~/lib/Project';
 
 import { CreateProjectSplash } from '~/components/splash/CreateProject';
 import { LoadingSplash } from '~/components/splash/Loading';
@@ -50,7 +55,9 @@ function App() {
   async function tryLoadProject(path: string) {
     const project = await loadProject(path);
     if (project) {
-      send({ type: 'project.load', project: { path, project } });
+      const projectRef = { project, path };
+      await importProjectAssets(projectRef);
+      send({ type: 'project.load', project: projectRef });
     }
   }
 

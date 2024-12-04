@@ -11,7 +11,6 @@ import {
 import {
   Project,
   ProjectReference,
-  assetById,
   newProject,
   saveProject,
 } from '~/lib/Project';
@@ -101,14 +100,8 @@ export function useOpenAssetIds(): string[] {
 
 export function useOpenAssets(): { id: string; name: string }[] {
   const project = useCurrentProject();
-  const openAssets = useOpenAssetIds()
-    .map(assetId => assetById(project, assetId))
-    .filter(asset => asset !== null) as {
-    id: string;
-    name: string;
-  }[];
 
-  return openAssets;
+  return [];
 }
 
 export function useOpenAssetControls() {
