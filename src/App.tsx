@@ -2,9 +2,14 @@ import { save } from '@tauri-apps/plugin-dialog';
 import { useMachine } from '@xstate/react';
 import { P, match } from 'ts-pattern';
 import { CurrentProjectProvider } from '~/contexts/CurrentProject';
-import { MainLayout } from '~/layouts/MainLayout';
-import { RootLayout } from '~/layouts/RootLayout';
-import { EditorSessionMachine } from '~/machines/EditorSession';
+import { ProjectBrowser } from '~/editor/components/ProjectBrowser';
+import { ProjectViewFrame } from '~/editor/components/ProjectView';
+import { CreateProjectSplash } from '~/editor/components/splash/CreateProject';
+import { LoadingSplash } from '~/editor/components/splash/Loading';
+import { RecentProjects } from '~/editor/components/splash/RecentProjects';
+import { MainLayout } from '~/editor/layouts/MainLayout';
+import { RootLayout } from '~/editor/layouts/RootLayout';
+import { EditorSessionMachine } from '~/editor/machines/EditorSession';
 
 import {
   importProjectAssets,
@@ -13,12 +18,7 @@ import {
   saveProject,
 } from '~/lib/Project';
 
-import { CreateProjectSplash } from '~/components/splash/CreateProject';
-import { LoadingSplash } from '~/components/splash/Loading';
-
-import { ProjectBrowser } from './components/ProjectBrowser';
-import { ProjectViewFrame } from './components/ProjectView';
-import { RecentProjects } from './components/splash/RecentProjects';
+import { AssetsProvider } from './editor/contexts/Assets';
 
 function App() {
   const [state, send] = useMachine(EditorSessionMachine);
@@ -90,16 +90,18 @@ function App() {
               project={state.context.project}
               closeProject={closeProject}
             >
-              <MainLayout
-                isRunning={state.value === 'projectRunning'}
-                sidebar={<ProjectBrowser />}
-                stopProject={stopProject}
-                runProject={runProject}
-              >
-                <ProjectViewFrame
-                  isGameRunning={state.value === 'projectRunning'}
-                />
-              </MainLayout>
+              <AssetsProvider>
+                <MainLayout
+                  isRunning={state.value === 'projectRunning'}
+                  sidebar={<ProjectBrowser />}
+                  stopProject={stopProject}
+                  runProject={runProject}
+                >
+                  <ProjectViewFrame
+                    isGameRunning={state.value === 'projectRunning'}
+                  />
+                </MainLayout>
+              </AssetsProvider>
             </CurrentProjectProvider>
           ),
         )

@@ -5,17 +5,23 @@ import { z } from 'zod';
 
 import { ProjectReference } from './Project';
 
-export const ASSET_EXTENSIONS = ['png', 'spritesheet.json', 'ink'] as const;
+export const ASSET_EXTENSIONS = [
+  'png',
+  'spritesheet.json',
+  'ink',
+  'machine',
+] as const;
 export const ASSET_IMPORTERS = {
   [ASSET_EXTENSIONS[0]]: importSprite,
   [ASSET_EXTENSIONS[1]]: importSpriteSheet,
   [ASSET_EXTENSIONS[2]]: importInk,
+  [ASSET_EXTENSIONS[3]]: importMachine,
 } as const;
 
 export const AssetRefSchema = z.object({
   id: z.string(),
   name: z.string().default('Asset Name'),
-  assetType: z.enum(['sprite', 'spritesheet', 'ink', 'map']),
+  assetType: z.enum(['sprite', 'spritesheet', 'ink', 'map', 'machine']),
   lastKnownPath: z.string(),
 });
 
@@ -168,6 +174,27 @@ async function importInk(
     id: v4(),
     name: entry.name,
     assetType: 'ink',
+    lastKnownPath,
+  };
+
+  await writeTextFile(
+    await resolve(projectDir, lastKnownPath + '.meta'),
+    JSON.stringify(assetRef, null, 2),
+  );
+
+  return assetRef;
+}
+
+async function importMachine(
+  projectRef: ProjectReference,
+  entry: FullyQualifiedDirEntry,
+): Promise<AssetRef> {
+  const [projectDir, lastKnownPath] = await getLastKnownPath(projectRef, entry);
+
+  const assetRef: AssetRef = {
+    id: v4(),
+    name: entry.name,
+    assetType: 'machine',
     lastKnownPath,
   };
 

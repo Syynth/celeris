@@ -1,51 +1,38 @@
 import { Tab, Tabs } from '@nextui-org/react';
-import { useQuery } from '@tanstack/react-query';
-import { resolve } from '@tauri-apps/api/path';
-import { Suspense } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 import { IoCloseSharp } from 'react-icons/io5';
-import { match } from 'ts-pattern';
+import { GameView } from '~/editor/components/GameView';
 import {
-  useCurrentProjectReference,
+  useAssetListener,
   useOpenAssetControls,
   useOpenAssets,
-} from '~/contexts/CurrentProject';
+} from '~/editor/contexts/Assets';
 
-import { AssetRef } from '~/lib/Assets';
-
-import { GameView } from './GameView';
-import { InkView } from '~/components/Editor/Ink/InkView';
-import { SpriteView } from './SpriteView';
+import { ProjectViewTab } from './ProjectViewTab';
 
 interface ProjectViewFrameProps {
   isGameRunning: boolean;
 }
 
-function ProjectViewTab({ asset }: { asset: AssetRef }) {
-  const { path } = useCurrentProjectReference();
-
-  const { data } = useQuery({
-    queryKey: ['assetData', asset.id],
-    queryFn: async () => await resolve(path, '..', asset.lastKnownPath),
-  });
-
-  return (
-    <div className="h-full">
-      {data &&
-        match(asset)
-          .with({ assetType: 'sprite' }, () => (
-            <SpriteView absolutePath={data} asset={asset} />
-          ))
-          .with({ assetType: 'ink' }, () => (
-            <InkView absolutePath={data} asset={asset} />
-          ))
-          .otherwise(() => null)}
-    </div>
-  );
-}
-
 export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
   const openAssets = useOpenAssets();
   const { closeAsset } = useOpenAssetControls();
+
+  const [selected, setSelected] = useState<string | null>(
+    openAssets.at(0)?.id ?? null,
+  );
+
+  useAssetListener((assetId, openAssets) => {
+    if (openAssets.includes(assetId)) {
+      setSelected(assetId);
+    } else if (selected === assetId) {
+      setSelected(openAssets.at(0) ?? null);
+    }
+  });
+
+  const handleSelect = useCallback((key: string | number) => {
+    setSelected(key.toString());
+  }, []);
 
   if (isGameRunning) {
     return (
@@ -55,8 +42,23 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
     );
   }
 
+  if (openAssets.length === 0) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center">
+        <div className="text-2xl">Open an asset to get started</div>
+      </div>
+    );
+  }
+
   return (
-    <Tabs variant="solid" size="sm" aria-label="Open Assets" items={openAssets}>
+    <Tabs
+      selectedKey={selected}
+      onSelectionChange={handleSelect}
+      variant="solid"
+      size="sm"
+      aria-label="Open Assets"
+      items={openAssets}
+    >
       {openAssets.map(asset => (
         <Tab
           key={asset.id}
