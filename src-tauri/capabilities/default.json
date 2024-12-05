@@ -8,11 +8,13 @@
     "shell:allow-open",
     "dialog:allow-save",
     "dialog:allow-open",
+    "fs:allow-read",
     "fs:allow-read-text-file",
     "fs:allow-write-text-file",
     "fs:allow-watch",
     "fs:read-all",
     "fs:write-all",
+    "fs:allow-home-read-recursive",
     "fs:allow-home-meta-recursive",
     "fs:allow-home-write-recursive"
   ]

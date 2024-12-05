@@ -1,5 +1,5 @@
 import { basename, resolve } from '@tauri-apps/api/path';
-import { readDir, stat } from '@tauri-apps/plugin-fs';
+import { readDir, readTextFile, stat } from '@tauri-apps/plugin-fs';
 import { TreeDataProvider, TreeItem, TreeItemIndex } from 'react-complex-tree';
 
 import { getProjectDirectory } from '~/lib/Assets';
@@ -8,6 +8,8 @@ import { ProjectReference } from '~/lib/Project';
 export class ProjectTreeDataProvider implements TreeDataProvider {
   private path: string;
   private basePath: Promise<string>;
+
+  private cache: Map<TreeItemIndex, TreeItem<any>> = new Map();
 
   constructor(project: ProjectReference) {
     this.path = project.path;
@@ -36,12 +38,50 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
 
   getTreeItem: (itemId: TreeItemIndex) => Promise<TreeItem<any>> =
     async itemId => {
+      const cached = this.cache.get(itemId);
+      if (cached) {
+        return cached;
+      }
+      const item = await this.getTreeItemImpl(itemId);
+      this.cache.set(itemId, item);
+      return item;
+    };
+
+  getTreeItemSync: (itemId: TreeItemIndex) => TreeItem<any> | null = itemId =>
+    this.cache.get(itemId) ?? null;
+
+  private getTreeItemImpl: (itemId: TreeItemIndex) => Promise<TreeItem<any>> =
+    async itemId => {
       if (itemId === this.path) return this.getRootItem();
       if (typeof itemId === 'number') {
         return null!;
       }
 
       const fileInfo = await stat(itemId);
+
+      const baseItem = {
+        index: itemId,
+        canMove: false,
+        isFolder: fileInfo.isDirectory,
+        data: {
+          name: await basename(itemId),
+          meta: null,
+        },
+        children: [],
+        canRename: false,
+      } as TreeItem<any>;
+
+      if (fileInfo.isFile) {
+        try {
+          const metaInfo = await stat(itemId + '.meta');
+          if (metaInfo?.isFile) {
+            const metaJson = await readTextFile(itemId + '.meta');
+            baseItem.data.meta = JSON.parse(metaJson);
+          }
+        } catch {
+          return baseItem;
+        }
+      }
 
       const children = fileInfo.isDirectory
         ? (
@@ -53,15 +93,8 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
           ).filter(c => c)
         : [];
 
-      return {
-        index: itemId,
-        canMove: false,
-        isFolder: fileInfo.isDirectory,
-        children,
-        data: {
-          name: await basename(itemId),
-        },
-        canRename: false,
-      };
+      baseItem.children = children;
+
+      return baseItem;
     };
 }

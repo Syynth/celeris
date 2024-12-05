@@ -1,13 +1,17 @@
+import { resolve } from '@tauri-apps/api/path';
 import {
   PropsWithChildren,
   ReactElement,
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
+import { nullable } from 'zod';
 
+import { AssetRef } from '~/lib/Assets';
 import {
   Project,
   ProjectReference,
@@ -98,10 +102,11 @@ export function useOpenAssetIds(): string[] {
   return useContext(CurrentProjectContext).openAssets;
 }
 
-export function useOpenAssets(): { id: string; name: string }[] {
+export function useOpenAssets(): AssetRef[] {
   const project = useCurrentProject();
+  const assetIds = useOpenAssetIds();
 
-  return [];
+  return assetIds.map(id => project.assets[id]).filter(Boolean);
 }
 
 export function useOpenAssetControls() {

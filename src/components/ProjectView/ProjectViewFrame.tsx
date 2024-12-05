@@ -1,17 +1,47 @@
 import { Tab, Tabs } from '@nextui-org/react';
+import { useQuery } from '@tanstack/react-query';
+import { resolve } from '@tauri-apps/api/path';
 import { Suspense } from 'react';
 import { IoCloseSharp } from 'react-icons/io5';
-import { useOpenAssetControls, useOpenAssets } from '~/contexts/CurrentProject';
+import { match } from 'ts-pattern';
+import {
+  useCurrentProjectReference,
+  useOpenAssetControls,
+  useOpenAssets,
+} from '~/contexts/CurrentProject';
+
+import { AssetRef } from '~/lib/Assets';
 
 import { GameView } from './GameView';
+import { SpriteView } from './SpriteView';
 
 interface ProjectViewFrameProps {
   isGameRunning: boolean;
 }
 
+function ProjectViewTab({ asset }: { asset: AssetRef }) {
+  const { path } = useCurrentProjectReference();
+
+  const { data } = useQuery({
+    queryKey: ['assetData', asset.id],
+    queryFn: async () => await resolve(path, '..', asset.lastKnownPath),
+  });
+
+  return (
+    <div>
+      {data &&
+        match(asset)
+          .with({ assetType: 'sprite' }, () => (
+            <SpriteView absolutePath={data} asset={asset} />
+          ))
+          .otherwise(() => null)}
+    </div>
+  );
+}
+
 export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
-  const { closeAsset } = useOpenAssetControls();
   const openAssets = useOpenAssets();
+  const { closeAsset } = useOpenAssetControls();
 
   if (isGameRunning) {
     return (
@@ -41,7 +71,7 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
             </div>
           }
         >
-          <div className="p-2">{asset.name}</div>
+          <ProjectViewTab asset={asset} />
         </Tab>
       ))}
     </Tabs>

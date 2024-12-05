@@ -14,6 +14,7 @@ export const ASSET_IMPORTERS = {
 
 export const AssetRefSchema = z.object({
   id: z.string(),
+  name: z.string().default('Asset Name'),
   assetType: z.enum(['sprite', 'spritesheet', 'ink', 'map']),
   lastKnownPath: z.string(),
 });
@@ -121,6 +122,7 @@ async function importSprite(
 
   const assetRef: AssetRef = {
     id: v4(),
+    name: entry.name,
     assetType: 'sprite',
     lastKnownPath,
   };
@@ -143,6 +145,7 @@ async function importSpriteSheet(
 
   const assetRef: AssetRef = {
     id: v4(),
+    name: entry.name,
     assetType: 'spritesheet',
     lastKnownPath,
   };
@@ -163,6 +166,7 @@ async function importInk(
 
   const assetRef: AssetRef = {
     id: v4(),
+    name: entry.name,
     assetType: 'ink',
     lastKnownPath,
   };

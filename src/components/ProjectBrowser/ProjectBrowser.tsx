@@ -29,7 +29,10 @@ export function ProjectBrowser(_: ProjectBrowserProps) {
         canDropOnFolder
         canDropOnNonFolder={false}
         onSelectItems={selection => {
-          selection.map(s => s.toString()).forEach(openAsset);
+          selection
+            .map(s => dataProvider.getTreeItemSync(s))
+            .filter(s => s?.data?.meta?.id)
+            .forEach(i => openAsset(i?.data.meta.id));
         }}
         viewState={{}}
       >
