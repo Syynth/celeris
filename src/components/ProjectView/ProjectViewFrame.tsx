@@ -13,6 +13,7 @@ import {
 import { AssetRef } from '~/lib/Assets';
 
 import { GameView } from './GameView';
+import { InkView } from '~/components/Editor/Ink/InkView';
 import { SpriteView } from './SpriteView';
 
 interface ProjectViewFrameProps {
@@ -28,11 +29,14 @@ function ProjectViewTab({ asset }: { asset: AssetRef }) {
   });
 
   return (
-    <div>
+    <div className="h-full">
       {data &&
         match(asset)
           .with({ assetType: 'sprite' }, () => (
             <SpriteView absolutePath={data} asset={asset} />
+          ))
+          .with({ assetType: 'ink' }, () => (
+            <InkView absolutePath={data} asset={asset} />
           ))
           .otherwise(() => null)}
     </div>
@@ -56,17 +60,17 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
       {openAssets.map(asset => (
         <Tab
           key={asset.id}
-          className="group"
+          className="group h-full"
           title={
-            <div className="p-y-0 flex flex-row items-center p-6">
+            <div className="p-x-10 p-y-0 flex h-4 flex-row items-center">
               <div>{asset.name}</div>
               {openAssets.length > 1 && (
-                <button
+                <div
                   onClick={() => closeAsset(asset.id)}
                   className="absolute right-0 opacity-0 group-hover:opacity-100"
                 >
                   <IoCloseSharp />
-                </button>
+                </div>
               )}
             </div>
           }
