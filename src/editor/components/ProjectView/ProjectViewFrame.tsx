@@ -78,14 +78,12 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
             <div className="p-x-10 p-y-0 flex h-4 flex-row items-center">
               <div className="mr-8" />
               <div>{asset.name}</div>
-              {openAssets.length > 1 && (
-                <div
-                  onClick={() => closeAsset(asset.id)}
-                  className="ml-4 opacity-0 group-hover:opacity-100"
-                >
-                  <IoCloseSharp />
-                </div>
-              )}
+              <div
+                onClick={() => closeAsset(asset.id)}
+                className="ml-4 opacity-0 group-hover:opacity-100"
+              >
+                <IoCloseSharp />
+              </div>
             </div>
           }
         >

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Tree, UncontrolledTreeEnvironment } from 'react-complex-tree';
 import 'react-complex-tree/lib/style-modern.css';
 import { useCurrentProjectReference } from '~/contexts/CurrentProject';
@@ -15,6 +15,13 @@ export function ProjectBrowser(_: ProjectBrowserProps) {
     () => new ProjectTreeDataProvider(project),
     [project],
   );
+
+  useEffect(() => {
+    const unwatch = dataProvider.beginFsWatch();
+    return () => {
+      unwatch();
+    };
+  }, [dataProvider]);
 
   return (
     <div className="project-browser min-w-48 p-2">
