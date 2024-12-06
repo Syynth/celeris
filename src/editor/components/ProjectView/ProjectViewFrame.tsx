@@ -1,5 +1,6 @@
 import { Tab, Tabs } from '@nextui-org/react';
 import { Suspense, useCallback, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { IoCloseSharp } from 'react-icons/io5';
 import { GameView } from '~/editor/components/GameView';
 import {
@@ -29,6 +30,16 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
       setSelected(openAssets.at(0) ?? null);
     }
   });
+
+  useHotkeys(
+    'ctrl+w',
+    () => {
+      if (selected) {
+        closeAsset(selected);
+      }
+    },
+    { preventDefault: true },
+  );
 
   const handleSelect = useCallback((key: string | number) => {
     setSelected(key.toString());
