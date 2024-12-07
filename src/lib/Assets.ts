@@ -1,9 +1,15 @@
 import { resolve } from '@tauri-apps/api/path';
-import { DirEntry, readDir, writeTextFile } from '@tauri-apps/plugin-fs';
+import {
+  DirEntry,
+  readDir,
+  readTextFile,
+  rename,
+  writeTextFile,
+} from '@tauri-apps/plugin-fs';
 import { v4 } from 'uuid';
 import { z } from 'zod';
 
-import { ProjectReference } from './Project';
+import { ProjectReference, saveProject } from './Project';
 
 export const ASSET_EXTENSIONS = [
   'png',
@@ -113,18 +119,64 @@ export async function importAsset(
 
 async function getLastKnownPath(
   projectRef: ProjectReference,
-  entry: FullyQualifiedDirEntry,
+  parentDir: string,
+  fileName: string,
 ): Promise<[string, string]> {
-  const lastKnownPath = await resolve(entry.parentDir, entry.name);
-  const projectDir = await resolve(projectRef.path, '..');
+  const [lastKnownPath, projectDir] = await Promise.all([
+    resolve(parentDir, fileName),
+    resolve(projectRef.path),
+  ]);
   return [projectDir, lastKnownPath.replace(projectDir, '').slice(1)];
+}
+
+export async function renameAsset(
+  projectRef: ProjectReference,
+  asset: AssetRef,
+  newName: string,
+) {
+  const projectDir = await getProjectDirectory(projectRef);
+
+  const [assetDir, oldMeta] = await Promise.all([
+    resolve(projectDir, asset.lastKnownPath, '..'),
+    resolve(projectDir, asset.lastKnownPath + '.meta'),
+  ]);
+
+  const [newPath, newMeta] = await Promise.all([
+    resolve(assetDir, newName),
+    resolve(assetDir, newName + '.meta'),
+  ]);
+
+  await Promise.all([rename(assetDir, newPath), rename(oldMeta, newMeta)]);
+
+  const [, lastKnownPath] = await getLastKnownPath(
+    projectRef,
+    assetDir,
+    newName,
+  );
+
+  await readTextFile(newMeta).then(async metaJson => {
+    const meta = JSON.parse(metaJson);
+    meta.name = newName;
+    meta.lastKnownPath = lastKnownPath;
+    const json = JSON.stringify(meta, null, 2);
+    await writeTextFile(newMeta, json);
+    return json;
+  });
+
+  asset.lastKnownPath = lastKnownPath;
+  asset.name = newName;
+  await saveProject(projectRef);
 }
 
 async function importSprite(
   projectRef: ProjectReference,
   entry: FullyQualifiedDirEntry,
 ): Promise<AssetRef> {
-  const [projectDir, lastKnownPath] = await getLastKnownPath(projectRef, entry);
+  const [projectDir, lastKnownPath] = await getLastKnownPath(
+    projectRef,
+    entry.parentDir,
+    entry.name,
+  );
 
   const assetRef: AssetRef = {
     id: v4(),
@@ -132,8 +184,6 @@ async function importSprite(
     assetType: 'sprite',
     lastKnownPath,
   };
-
-  console.log('importing sprite', { projectDir, lastKnownPath, assetRef });
 
   await writeTextFile(
     await resolve(projectDir, lastKnownPath + '.meta'),
@@ -147,7 +197,11 @@ async function importSpriteSheet(
   projectRef: ProjectReference,
   entry: FullyQualifiedDirEntry,
 ): Promise<AssetRef> {
-  const [projectDir, lastKnownPath] = await getLastKnownPath(projectRef, entry);
+  const [projectDir, lastKnownPath] = await getLastKnownPath(
+    projectRef,
+    entry.parentDir,
+    entry.name,
+  );
 
   const assetRef: AssetRef = {
     id: v4(),
@@ -168,7 +222,11 @@ async function importInk(
   projectRef: ProjectReference,
   entry: FullyQualifiedDirEntry,
 ): Promise<AssetRef> {
-  const [projectDir, lastKnownPath] = await getLastKnownPath(projectRef, entry);
+  const [projectDir, lastKnownPath] = await getLastKnownPath(
+    projectRef,
+    entry.parentDir,
+    entry.name,
+  );
 
   const assetRef: AssetRef = {
     id: v4(),
@@ -189,7 +247,11 @@ async function importMachine(
   projectRef: ProjectReference,
   entry: FullyQualifiedDirEntry,
 ): Promise<AssetRef> {
-  const [projectDir, lastKnownPath] = await getLastKnownPath(projectRef, entry);
+  const [projectDir, lastKnownPath] = await getLastKnownPath(
+    projectRef,
+    entry.parentDir,
+    entry.name,
+  );
 
   const assetRef: AssetRef = {
     id: v4(),

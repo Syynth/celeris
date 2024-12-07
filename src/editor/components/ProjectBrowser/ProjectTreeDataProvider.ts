@@ -13,17 +13,20 @@ import {
 import { TreeDataProvider, TreeItem, TreeItemIndex } from 'react-complex-tree';
 import { P, match } from 'ts-pattern';
 
-import { getProjectDirectory } from '~/lib/Assets';
+import { getProjectDirectory, renameAsset } from '~/lib/Assets';
 import { ProjectReference } from '~/lib/Project';
 
 export class ProjectTreeDataProvider implements TreeDataProvider {
+  private project: ProjectReference;
   private path: string;
   private basePath: Promise<string>;
   private watching: boolean = false;
 
+  private treeChangeListeners: ((itemIds: TreeItemIndex[]) => void)[] = [];
   private cache: Map<TreeItemIndex, TreeItem<any>> = new Map();
 
   constructor(project: ProjectReference) {
+    this.project = project;
     this.path = project.path;
     this.basePath = getProjectDirectory(project);
   }
@@ -160,6 +163,35 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
       .exhaustive();
   }
 
+  public onDidChangeTreeData: TreeDataProvider['onDidChangeTreeData'] =
+    listener => {
+      this.treeChangeListeners.push(listener);
+      return {
+        dispose: () => {
+          this.treeChangeListeners.splice(
+            this.treeChangeListeners.indexOf(listener),
+            1,
+          );
+        },
+      };
+    };
+
+  public onRenameItem: TreeDataProvider['onRenameItem'] = async (
+    item,
+    name,
+  ) => {
+    if (item.isFolder) {
+      console.error('Cant rename folders yet!');
+      return;
+    }
+
+    const itemId = item.data.meta.id;
+    const asset = this.project.project.assets[itemId];
+    this.cache.delete(itemId);
+
+    await renameAsset(this.project, asset, name);
+  };
+
   public getRootItem = async (): Promise<TreeItem<any>> => {
     const basePath = await this.basePath;
     const entries = await readDir(basePath);
@@ -180,65 +212,63 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
     };
   };
 
-  getTreeItem: (itemId: TreeItemIndex) => Promise<TreeItem<any>> =
-    async itemId => {
-      const cached = this.cache.get(itemId);
-      if (cached) {
-        return cached;
-      }
-      const item = await this.getTreeItemImpl(itemId);
-      this.cache.set(itemId, item);
-      return item;
-    };
+  public getTreeItem: TreeDataProvider['getTreeItem'] = async itemId => {
+    const cached = this.cache.get(itemId);
+    if (cached) {
+      return cached;
+    }
+    const item = await this.getTreeItemImpl(itemId);
+    this.cache.set(itemId, item);
+    return item;
+  };
 
   getTreeItemSync: (itemId: TreeItemIndex) => TreeItem<any> | null = itemId =>
     this.cache.get(itemId) ?? null;
 
-  private getTreeItemImpl: (itemId: TreeItemIndex) => Promise<TreeItem<any>> =
-    async itemId => {
-      if (itemId === this.path) return this.getRootItem();
-      if (typeof itemId === 'number') {
-        return null!;
-      }
+  private getTreeItemImpl: TreeDataProvider['getTreeItem'] = async itemId => {
+    if (itemId === this.path) return this.getRootItem();
+    if (typeof itemId === 'number') {
+      return null!;
+    }
 
-      const fileInfo = await stat(itemId);
+    const fileInfo = await stat(itemId);
 
-      const baseItem = {
-        index: itemId,
-        canMove: false,
-        isFolder: fileInfo.isDirectory,
-        data: {
-          name: await basename(itemId),
-          meta: null,
-        },
-        children: [],
-        canRename: false,
-      } as TreeItem<any>;
+    const baseItem = {
+      index: itemId,
+      canMove: false,
+      isFolder: fileInfo.isDirectory,
+      data: {
+        name: await basename(itemId),
+        meta: null,
+      },
+      children: [],
+      canRename: true,
+    } as TreeItem<any>;
 
-      if (fileInfo.isFile) {
-        try {
-          const metaInfo = await stat(itemId + '.meta');
-          if (metaInfo?.isFile) {
-            const metaJson = await readTextFile(itemId + '.meta');
-            baseItem.data.meta = JSON.parse(metaJson);
-          }
-        } catch {
-          return baseItem;
+    if (fileInfo.isFile) {
+      try {
+        const metaInfo = await stat(itemId + '.meta');
+        if (metaInfo?.isFile) {
+          const metaJson = await readTextFile(itemId + '.meta');
+          baseItem.data.meta = JSON.parse(metaJson);
         }
+      } catch {
+        return baseItem;
       }
+    }
 
-      const children = fileInfo.isDirectory
-        ? (
-            await Promise.all(
-              (await readDir(itemId))
-                .filter(c => c.isDirectory || !c.name.endsWith('.meta'))
-                .map(c => resolve(itemId, c.name)),
-            )
-          ).filter(c => c)
-        : [];
+    const children = fileInfo.isDirectory
+      ? (
+          await Promise.all(
+            (await readDir(itemId))
+              .filter(c => c.isDirectory || !c.name.endsWith('.meta'))
+              .map(c => resolve(itemId, c.name)),
+          )
+        ).filter(c => c)
+      : [];
 
-      baseItem.children = children;
+    baseItem.children = children;
 
-      return baseItem;
-    };
+    return baseItem;
+  };
 }
