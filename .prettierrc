@@ -26,6 +26,7 @@
         "proseWrap": "never"
       }
     },
+    { "files": ["*.frag"], "options": {"parser": "glsl-parser"} },
     {
       "files": "*.{json,babelrc,eslintrc,remarkrc,prettierrc}",
       "options": {
@@ -33,11 +34,11 @@
       }
     }
   ],
-  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss", "prettier-plugin-glsl"],
   "importOrder": [
     "^~/lib/(.*)$",
-    "^~/components/Shared/(.*)$",
-    "^~/components/(.*)$",
+    "^~/editor/(.*)$",
+    "^~/game/(.*)$",
     "^[./]"
   ],
   "importOrderSeparation": true,

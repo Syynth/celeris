@@ -136,7 +136,8 @@ export async function renameAsset(
 ) {
   const projectDir = await getProjectDirectory(projectRef);
 
-  const [assetDir, oldMeta] = await Promise.all([
+  const [assetPath, assetDir, oldMeta] = await Promise.all([
+    resolve(projectDir, asset.lastKnownPath),
     resolve(projectDir, asset.lastKnownPath, '..'),
     resolve(projectDir, asset.lastKnownPath + '.meta'),
   ]);
@@ -146,7 +147,7 @@ export async function renameAsset(
     resolve(assetDir, newName + '.meta'),
   ]);
 
-  await Promise.all([rename(assetDir, newPath), rename(oldMeta, newMeta)]);
+  await Promise.all([rename(assetPath, newPath), rename(oldMeta, newMeta)]);
 
   const [, lastKnownPath] = await getLastKnownPath(
     projectRef,
@@ -166,6 +167,7 @@ export async function renameAsset(
   asset.lastKnownPath = lastKnownPath;
   asset.name = newName;
   await saveProject(projectRef);
+  return lastKnownPath;
 }
 
 async function importSprite(

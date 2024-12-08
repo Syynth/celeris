@@ -187,9 +187,12 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
 
     const itemId = item.data.meta.id;
     const asset = this.project.project.assets[itemId];
-    this.cache.delete(itemId);
-
-    await renameAsset(this.project, asset, name);
+    const cacheItem = this.cache.get(itemId);
+    if (cacheItem?.data) {
+      cacheItem.data.name = name;
+    }
+    const path = await renameAsset(this.project, asset, name);
+    this.treeChangeListeners.forEach(l => l([item.index, path]));
   };
 
   public getRootItem = async (): Promise<TreeItem<any>> => {

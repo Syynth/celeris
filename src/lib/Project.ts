@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api/core';
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { z } from 'zod';
 
@@ -51,6 +52,7 @@ export function newProject(name: string): Project {
 
 export async function loadProject(path: string): Promise<Project | null> {
   try {
+    await invoke('allow_dir', { path });
     const projectJson = await readTextFile(path);
     const rawProject = JSON.parse(projectJson ?? '');
     return ProjectSchema.parse(rawProject);
