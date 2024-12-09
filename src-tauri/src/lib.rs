@@ -8,7 +8,7 @@ fn greet(name: &str) -> String {
 fn allow_dir(app: tauri::AppHandle, path: std::path::PathBuf) -> Result<(), String> {
     use tauri_plugin_fs::FsExt;
 
-    println!("allowing access to {path}");
+    println!("allowing access to {path:?}");
 
     app.fs_scope()
         .allow_directory(path.parent().unwrap_or(&path), true)
