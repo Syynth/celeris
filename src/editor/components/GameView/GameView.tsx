@@ -25,6 +25,9 @@ export function GameView({}: GameViewProps) {
   const cc = useAsset<Texture>({
     src: '/sprites/SSC.png',
   });
+  const lights = useAsset<Texture>({
+    src: '/sprites/MinnieLight.png',
+  });
 
   const currentPlayer = useRef<any>({ x: 0, y: 0, texture });
 
@@ -39,7 +42,7 @@ export function GameView({}: GameViewProps) {
           <sprite texture={pg} x={0} y={0} />
           <sprite texture={fg} x={0} y={0} />
           <Player onMove={onMove} />
-          <Lighting playerData={currentPlayer} occluders={cc} />
+          <Lighting playerData={currentPlayer} lights={lights} occluders={cc} />
         </Suspense>
       </InputProvider>
     </Application>
