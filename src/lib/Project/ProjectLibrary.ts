@@ -1,9 +1,12 @@
 import { ProjectData } from './ProjectData';
 
 export class ProjectLibrary {
-  private constructor(assets: ProjectData['library']) {}
+  private constructor(
+    private assets: ProjectData['library'],
+    private libraryDir: string,
+  ) {}
 
-  static fromData(data: ProjectData): ProjectLibrary {
-    return new ProjectLibrary(data.library);
+  static fromData(data: ProjectData, path: string): ProjectLibrary {
+    return new ProjectLibrary(data.library, path);
   }
 }

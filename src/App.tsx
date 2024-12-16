@@ -2,6 +2,9 @@ import { save } from '@tauri-apps/plugin-dialog';
 import { useMachine } from '@xstate/react';
 import { P, match } from 'ts-pattern';
 import { CurrentProjectProvider } from '~/contexts/CurrentProject';
+
+import { Project } from '~/lib/Project/Project';
+
 import { ProjectBrowser } from '~/editor/components/ProjectBrowser';
 import { ProjectViewFrame } from '~/editor/components/ProjectView';
 import { CreateProjectSplash } from '~/editor/components/splash/CreateProject';
@@ -11,28 +14,16 @@ import { MainLayout } from '~/editor/layouts/MainLayout';
 import { RootLayout } from '~/editor/layouts/RootLayout';
 import { EditorSessionMachine } from '~/editor/machines/EditorSession';
 
-import {
-  importProjectAssets,
-  loadProject,
-  newProject,
-  saveProject,
-} from '~/lib/Project';
-
 import { AssetsProvider } from './editor/contexts/Assets';
 
 function App() {
   const [state, send] = useMachine(EditorSessionMachine);
 
   async function createProject(projectName: string) {
-    const project = newProject(projectName);
-    const path = await save({
-      defaultPath: projectName,
-      filters: [{ name: 'Celeris Project', extensions: ['celeris'] }],
-    });
-    if (path) {
-      const ref = { project, path };
-      await saveProject(ref);
-      send({ type: 'project.load', project: ref });
+    const project = await Project.createFromUserSelection(projectName);
+    if (project) {
+      alert('created project at ' + project.projectDirectory);
+      // send({ type: 'project.load', project: ref });
     }
   }
 

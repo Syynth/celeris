@@ -7,31 +7,32 @@ export const CURRENT_SCHEMA_VERSION = 1;
 
 export const VirtualFolderStructureSchema: z.ZodType<VirtualFolderStructure> =
   z.lazy(() =>
-    z.record(
-      z.string(),
-      z.discriminatedUnion('type', [
-        z.object({
-          type: z.literal('folder'),
-          children: VirtualFolderStructureSchema,
-        }),
-        z.object({
-          type: z.literal('asset'),
-          assetId: z.string().uuid(),
-        }),
-      ]),
-    ),
+    z.discriminatedUnion('type', [
+      z.object({
+        id: z.string(),
+        type: z.literal('folder'),
+        displayName: z.string(),
+        children: z.array(VirtualFolderStructureSchema),
+      }),
+      z.object({
+        type: z.literal('asset'),
+        displayName: z.string(),
+        assetId: z.string().uuid(),
+      }),
+    ]),
   );
-export type VirtualFolderStructure = Record<
-  string,
+export type VirtualFolderStructure =
   | {
       type: 'folder';
-      children: VirtualFolderStructure;
+      id: string;
+      displayName: string;
+      children: VirtualFolderStructure[];
     }
   | {
       type: 'asset';
+      displayName: string;
       assetId: string;
-    }
->;
+    };
 
 export const ProjectDataSchema = z.object({
   schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
@@ -40,9 +41,6 @@ export const ProjectDataSchema = z.object({
   library: z.object({
     assets: z.record(z.string(), AssetDataSchema),
     structure: VirtualFolderStructureSchema,
-  }),
-  inbox: z.object({
-    assets: z.record(z.string(), AssetDataSchema),
   }),
 });
 
@@ -98,10 +96,12 @@ function migrateFromV0(v0: z.infer<typeof ProjectDataV0Schema>): ProjectData {
           },
         ]),
       ),
-      structure: {}, // Empty structure, assets will need to be reorganized
-    },
-    inbox: {
-      assets: {},
+      structure: {
+        id: 'library',
+        displayName: 'Library',
+        type: 'folder',
+        children: [],
+      }, // Empty structure, assets will need to be reorganized
     },
   };
 }

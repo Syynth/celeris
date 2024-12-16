@@ -6,15 +6,15 @@ import { EventEmitter } from 'eventemitter3';
 import { v4 as uuid } from 'uuid';
 
 import { AssetData, AssetType } from './AssetData';
-import { AssetWatcher } from './AssetWatcher';
 import { ModificationState } from './ModificationState';
 import {
   CURRENT_SCHEMA_VERSION,
   ProjectData,
   ProjectDataSchema,
-  VirtualFolderStructure,
   migrateProject,
 } from './ProjectData';
+import { ProjectInbox } from './ProjectInbox';
+import { ProjectLibrary } from './ProjectLibrary';
 import { ProjectSettings } from './ProjectSettings';
 
 type ProjectEventMap = {
@@ -32,14 +32,18 @@ interface ProjectConstructorParams {
   projectData: ProjectData;
   projectDir: string;
   path: string;
-  inboxWatcher: AssetWatcher;
-  libraryWatcher: AssetWatcher;
+  inbox: ProjectInbox;
+  library: ProjectLibrary;
 }
 
 // Project class implementation
 export class Project {
-  private inboxWatcher: AssetWatcher | null = null;
-  private libraryWatcher: AssetWatcher | null = null;
+  private path: string;
+  private data: ProjectData;
+  private projectDir: string;
+
+  private inbox: ProjectInbox;
+  private library: ProjectLibrary;
   private modifications = new Map<string, ModificationState>();
   private events = new EventEmitter<ProjectEventMap>();
 
@@ -49,7 +53,7 @@ export class Project {
     return Project.constuctWithWatchers(data, path);
   }
 
-  static async create(name: string): Promise<Project | null> {
+  static async createFromUserSelection(name: string): Promise<Project | null> {
     const data: ProjectData = {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       name,
@@ -59,10 +63,44 @@ export class Project {
       },
       library: {
         assets: {},
-        structure: {},
-      },
-      inbox: {
-        assets: {},
+        structure: {
+          type: 'folder',
+          id: 'library',
+          displayName: 'Library',
+          children: [
+            {
+              type: 'folder',
+              id: uuid(),
+              displayName: 'Sprites',
+              children: [
+                {
+                  type: 'folder',
+                  id: uuid(),
+                  displayName: 'Characters',
+                  children: [],
+                },
+              ],
+            },
+            {
+              type: 'folder',
+              id: uuid(),
+              displayName: 'Animations',
+              children: [],
+            },
+            {
+              type: 'folder',
+              id: uuid(),
+              displayName: 'Ink',
+              children: [],
+            },
+            {
+              type: 'folder',
+              id: uuid(),
+              displayName: 'Machines',
+              children: [],
+            },
+          ],
+        },
       },
     };
     const path = await save({
@@ -71,9 +109,8 @@ export class Project {
     });
 
     if (!path) return null;
-    const projectDir = await resolve(path, '..');
 
-    return new Project(data, path, projectDir);
+    return await Project.constuctWithWatchers(data, path);
   }
 
   private static async constuctWithWatchers(
@@ -90,8 +127,8 @@ export class Project {
       projectData,
       projectDir,
       path,
-      inboxWatcher: new AssetWatcher(inboxDir),
-      libraryWatcher: new AssetWatcher(libraryDir),
+      inbox: ProjectInbox.fromPath(projectData, inboxDir),
+      library: ProjectLibrary.fromData(projectData, libraryDir),
     });
   }
 
@@ -99,17 +136,26 @@ export class Project {
     projectData,
     projectDir,
     path,
+    inbox,
+    library,
   }: ProjectConstructorParams) {
     this.path = path;
     this.data = projectData;
     this.projectDir = projectDir;
 
-    ProjectDataSchema.parse(data);
-    this.assetWatcher = new AssetWatcher(projectDir);
+    ProjectDataSchema.parse(projectData);
+    this.inbox = inbox;
+    this.library = library;
+
+    this.inbox.constructInboxDirectories();
   }
 
   get name(): string {
     return this.data.name;
+  }
+
+  get projectDirectory(): string {
+    return this.projectDir;
   }
 
   get settings(): ProjectSettings {
@@ -135,57 +181,6 @@ export class Project {
   ): void {
     // @ts-expect-error ?? TODO: Figure this out
     this.events.emit(event, payload);
-  }
-
-  private updateVirtualStructure(path: string[], assetId: string): void {
-    let current = this.data.library.structure;
-    for (let i = 0; i < path.length - 1; i++) {
-      const segment = path[i];
-      if (!current[segment] || current[segment].type !== 'folder') {
-        current[segment] = { type: 'folder', children: {} };
-      }
-      current = (
-        current[segment] as { type: 'folder'; children: VirtualFolderStructure }
-      ).children;
-    }
-
-    const lastSegment = path[path.length - 1];
-    current[lastSegment] = { type: 'asset', assetId };
-  }
-
-  private async applyModifications(mods: ModificationState[]): Promise<void> {
-    // Implement modification applying logic
-    for (const mod of mods) {
-      switch (mod.type) {
-        case 'create':
-          // Handle creation
-          break;
-        case 'update':
-          // Handle update
-          break;
-        case 'delete':
-          // Handle deletion
-          break;
-        case 'move':
-          // Handle move
-          break;
-      }
-    }
-  }
-
-  private async handleAssetCreated(path: string): Promise<void> {
-    // Implement asset creation handling
-  }
-
-  private async handleAssetModified(
-    asset: AssetData,
-    path: string,
-  ): Promise<void> {
-    // Implement asset modification handling
-  }
-
-  private async handleAssetDeleted(asset: AssetData): Promise<void> {
-    // Implement asset deletion handling
   }
 
   private addModification(state: ModificationState): void {
@@ -215,13 +210,6 @@ export class Project {
     }
   }
 
-  // Private helpers
-  private findAssetByPath(path: string): AssetData | undefined {
-    return Object.values(this.data.library.assets)
-      .concat(Object.values(this.data.inbox.assets))
-      .find(asset => asset.path === path);
-  }
-
   // Asset management
   async importAsset(path: string): Promise<string> {
     const assetId = uuid();
@@ -244,7 +232,6 @@ export class Project {
     // Create metadata file
     await writeTextFile(targetPath + '.meta', JSON.stringify(asset, null, 2));
 
-    this.data.inbox.assets[assetId] = asset;
     this.addModification({
       type: 'create',
       entityType: 'asset',
