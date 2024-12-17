@@ -6,12 +6,11 @@ import {
   Mesh,
   RenderTexture,
   Shader,
-  Sprite,
 } from 'pixi.js';
 import { Dispatch, RefObject, useEffect, useRef, useState } from 'react';
 
+import jump_flood from './jump_flood.glsl';
 // import gi_frag from './gi.glsl';
-// import jump_flood from './jump_flood.glsl';
 // import sdf from './sdf.glsl';
 // import srgb_frag from './srgb_frag.glsl';
 import vertex from './vertex.glsl';
@@ -45,14 +44,12 @@ function renderPipeline(
   container: Container,
   setPipelineTextures: Dispatch<PipelineTextures>,
 ) {
-  // Ensure the scene is rendered into sceneTexture before starting the pipeline
-  const beforeVisibility = container.visible;
-  container.visible = true;
+  if (!app || !app.renderer) return;
+
   app.renderer.render({
     container: container,
     target: sceneTexture,
   });
-  container.visible = beforeVisibility;
 
   // 1. Voronoi Seed Pass
   const voronoiSeedShader = Shader.from({
@@ -71,25 +68,31 @@ function renderPipeline(
   });
 
   // // 2. Jump Flooding Passes
-  // const passes = Math.ceil(Math.log2(Math.max(width, height)));
-  // let jfaInput = voronoiSeedTexture;
-  // let finalVoronoiTexture: RenderTexture = voronoiSeedTexture;
-  // for (let i = 0; i < passes; i++) {
-  //   const offset = Math.pow(2, passes - i - 1);
-  //   const jfaTexture = RenderTexture.create({ width, height });
-  //   const jfaShader = Shader.from({
-  //     gl: { vertex, fragment: jump_flood },
-  //     resources: {
-  //       u_input_tex: jfaInput,
-  //       u_offset: offset,
-  //       u_resolution: [width, height],
-  //     },
-  //   });
-  //   const jfaMesh = new Mesh({ geometry, shader: jfaShader });
-  //   app.renderer.render({ container: jfaMesh, target: jfaTexture });
-  //   jfaInput = jfaTexture;
-  //   finalVoronoiTexture = jfaTexture;
-  // }
+  const passes = Math.ceil(Math.log2(Math.max(width, height)));
+  let jfaInput = voronoiSeedTexture;
+  let finalVoronoiTexture: RenderTexture = voronoiSeedTexture;
+  for (let i = 0; i < passes; i++) {
+    const offset = Math.pow(2, passes - i - 1);
+    const jfaTexture = RenderTexture.create({ width, height });
+    // debugger;
+    const jfaShader = Shader.from({
+      gl: { vertex, fragment: jump_flood },
+      resources: {
+        jfaUniforms: {
+          u_resolution: {
+            value: { x: width, y: height },
+            type: 'vec2<f32>',
+          },
+        },
+        u_input_tex: jfaInput,
+        u_offset: offset,
+      },
+    });
+    const jfaMesh = new Mesh({ geometry, shader: jfaShader });
+    app.renderer.render({ container: jfaMesh, target: jfaTexture });
+    jfaInput = jfaTexture;
+    finalVoronoiTexture = jfaTexture;
+  }
 
   // // 3. Distance Field Pass
   // const distanceTexture = RenderTexture.create({ width, height });
@@ -136,8 +139,8 @@ function renderPipeline(
   setPipelineTextures({
     sceneTexture,
     voronoiSeedTexture,
-    // finalVoronoiTexture,
-    finalVoronoiTexture: null!,
+    finalVoronoiTexture,
+    // finalVoronoiTexture: null!,
     // distanceTexture,
     distanceTexture: null!,
     // giTexture,
@@ -168,28 +171,29 @@ export function useGiPipeline(
   return pipelineTextures;
 }
 
-export function Lighting({ playerData, lights, occluders }: any) {
+export function Lighting({ playerData, occluders }: any) {
   const containerRef = useRef<Container>(null);
-  const lightRef = useRef<Sprite>(null);
   const pipelineTextures = useGiPipeline(containerRef, sceneTexture);
 
   return (
     <container>
       <container visible={false} ref={containerRef} width={960} height={550}>
+        <sprite texture={occluders} x={0} y={0} />
         <sprite
-          ref={lightRef}
-          texture={lights}
-          width={48}
-          height={48}
+          texture={playerData.current.texture}
           x={playerData.current.x}
           y={playerData.current.y}
         />
-        <sprite texture={occluders} x={0} y={0} />
       </container>
       {pipelineTextures && (
         <>
-          <sprite texture={pipelineTextures.sceneTexture} x={0} y={550} />
-          <sprite texture={pipelineTextures.voronoiSeedTexture} x={0} y={550} />
+          {/* <sprite texture={pipelineTextures.sceneTexture} x={0} y={550} /> */}
+          <sprite texture={pipelineTextures.voronoiSeedTexture} x={0} y={-10} />
+          <sprite
+            texture={pipelineTextures.finalVoronoiTexture}
+            x={0}
+            y={550}
+          />
         </>
       )}
     </container>

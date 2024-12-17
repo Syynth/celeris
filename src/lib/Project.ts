@@ -53,7 +53,7 @@ export function newProject(name: string): Project {
 
 export async function loadProject(path: string): Promise<Project | null> {
   try {
-    await invoke('allow_dir', { path: await resolve(path, '..') });
+    await invoke('start_server', { path: await resolve(path, '..') });
     const projectJson = await readTextFile(path);
     const rawProject = JSON.parse(projectJson ?? '');
     return ProjectSchema.parse(rawProject);
