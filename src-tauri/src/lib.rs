@@ -1,8 +1,7 @@
 use axum::{routing::get_service, Router};
-use hyper::body::Body;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
-use hyper::{Request, Response};
+use hyper::{Request};
 use hyper_util::rt::TokioIo;
 use std::{
     net::SocketAddr,
@@ -21,9 +20,9 @@ struct ServerState {
 }
 
 impl ServerState {
-    fn new() -> Self {
+    fn new(notify: Arc<Notify>) -> Self {
         Self {
-            notify: Arc::new(Notify::new()),
+            notify
         }
     }
 }
@@ -105,7 +104,7 @@ async fn start_server(
         }
     });
 
-    *state_guard = Some(ServerState { notify });
+    *state_guard = Some(ServerState::new(notify));
 
     Ok("Server started at http://127.0.0.1:3000".into())
 }
