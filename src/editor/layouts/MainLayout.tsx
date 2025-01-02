@@ -1,9 +1,10 @@
 import { Divider } from '@nextui-org/react';
 import { PropsWithChildren, ReactNode } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { ProjectToolbar } from '~/editor/components/ProjectToolbar';
 
 import { SaveFile } from '~/lib/SaveFile';
+
+import { ProjectToolbar } from '~/editor/components/ProjectToolbar';
 
 interface MainLayoutProps {
   sidebar?: ReactNode;

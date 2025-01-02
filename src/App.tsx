@@ -2,6 +2,14 @@ import { save } from '@tauri-apps/plugin-dialog';
 import { useMachine } from '@xstate/react';
 import { P, match } from 'ts-pattern';
 import { CurrentProjectProvider } from '~/contexts/CurrentProject';
+
+import {
+  importProjectAssets,
+  loadProject,
+  newProject,
+  saveProject,
+} from '~/lib/Project';
+
 import { ProjectBrowser } from '~/editor/components/ProjectBrowser';
 import { ProjectViewFrame } from '~/editor/components/ProjectView';
 import { CreateProjectSplash } from '~/editor/components/splash/CreateProject';
@@ -10,13 +18,6 @@ import { RecentProjects } from '~/editor/components/splash/RecentProjects';
 import { MainLayout } from '~/editor/layouts/MainLayout';
 import { RootLayout } from '~/editor/layouts/RootLayout';
 import { EditorSessionMachine } from '~/editor/machines/EditorSession';
-
-import {
-  importProjectAssets,
-  loadProject,
-  newProject,
-  saveProject,
-} from '~/lib/Project';
 
 import { AssetsProvider } from './editor/contexts/Assets';
 

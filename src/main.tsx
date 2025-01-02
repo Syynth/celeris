@@ -1,4 +1,3 @@
-import { NextUIProvider } from '@nextui-org/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -10,12 +9,10 @@ const defaultClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
-    <NextUIProvider>
-      <QueryClientProvider client={defaultClient}>
-        <HotkeysProvider>
-          <App />
-        </HotkeysProvider>
-      </QueryClientProvider>
-    </NextUIProvider>
+    <QueryClientProvider client={defaultClient}>
+      <HotkeysProvider>
+        <App />
+      </HotkeysProvider>
+    </QueryClientProvider>
   </StrictMode>,
 );

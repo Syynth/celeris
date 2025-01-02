@@ -34,7 +34,7 @@
       }
     }
   ],
-  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss", "prettier-plugin-glsl"],
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-glsl"],
   "importOrder": [
     "^~/lib/(.*)$",
     "^~/editor/(.*)$",
