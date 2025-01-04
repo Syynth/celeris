@@ -1,4 +1,4 @@
-import { Divider } from '@nextui-org/react';
+import { VStack } from '@chakra-ui/react';
 import { PropsWithChildren, ReactNode } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
@@ -15,9 +15,10 @@ interface MainLayoutProps {
 
 export function MainLayout(props: PropsWithChildren<MainLayoutProps>) {
   return (
-    <main className="flex h-[100vh] w-[100vw] flex-col">
+    <VStack w="100vw" h="100vh">
+      main layout
       <ProjectToolbar {...props} />
-      <Divider orientation="horizontal" />
+      <hr />
       <PanelGroup
         direction="horizontal"
         id="group"
@@ -31,6 +32,6 @@ export function MainLayout(props: PropsWithChildren<MainLayoutProps>) {
           <div className="h-full rounded-md bg-white/10">{props.children}</div>
         </Panel>
       </PanelGroup>
-    </main>
+    </VStack>
   );
 }

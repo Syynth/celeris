@@ -1,11 +1,12 @@
 import type { PropsWithChildren } from 'react';
+import { HStack, Flex } from '@chakra-ui/react';
 
 interface RootLayoutProps {}
 
 export function RootLayout(props: PropsWithChildren<RootLayoutProps>) {
   return (
-    <main className="flex h-[100vh] w-[100vw] flex-row">
-      <div className="flex-1">{props.children}</div>
-    </main>
+    <HStack w="100vw" h="100vh">
+      <Flex grow={1}>{props.children}</Flex>
+    </HStack>
   );
 }

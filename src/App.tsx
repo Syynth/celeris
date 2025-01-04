@@ -11,7 +11,7 @@ import {
 } from '~/lib/Project';
 
 import { ProjectBrowser } from '~/editor/components/ProjectBrowser';
-import { ProjectViewFrame } from '~/editor/components/ProjectView';
+// import { ProjectViewFrame } from '~/editor/components/ProjectView';
 import { CreateProjectSplash } from '~/editor/components/splash/CreateProject';
 import { LoadingSplash } from '~/editor/components/splash/Loading';
 import { RecentProjects } from '~/editor/components/splash/RecentProjects';
@@ -98,9 +98,9 @@ function App() {
                   stopProject={stopProject}
                   runProject={runProject}
                 >
-                  <ProjectViewFrame
-                    isGameRunning={state.value === 'projectRunning'}
-                  />
+                  {/*<ProjectViewFrame*/}
+                  {/*  isGameRunning={state.value === 'projectRunning'}*/}
+                  {/*/>*/}
                 </MainLayout>
               </AssetsProvider>
             </CurrentProjectProvider>
