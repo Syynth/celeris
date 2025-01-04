@@ -1,10 +1,8 @@
+import { Editor, OnChange } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
-import 'brace';
-import 'brace/mode/java';
-import 'brace/theme/monokai';
 import { useCallback } from 'react';
-import AceEditor from 'react-ace';
+import { useColorModeValue } from '~/components/ui/color-mode.tsx';
 
 import { AssetRef } from '~/lib/Assets';
 
@@ -25,23 +23,13 @@ export function InkView({ absolutePath, asset }: InkViewProps) {
     },
   });
 
-  const handleChange = useCallback((text: string) => {
-    writeTextFile(absolutePath, text);
+  const handleChange: OnChange = useCallback(async text => {
+    if (text) {
+      await writeTextFile(absolutePath, text);
+    }
   }, []);
 
-  return (
-    <AceEditor
-      mode="java"
-      theme="monokai"
-      name={`${asset.id}/editor`}
-      onChange={handleChange}
-      value={text}
-      className="h-full w-full"
-      style={{
-        width: 'inherit',
-        height: 'inherit',
-      }}
-      editorProps={{ $blockScrolling: true }}
-    />
-  );
+  const theme = useColorModeValue('light', 'vs-dark');
+
+  return <Editor theme={theme} onChange={handleChange} value={text} />;
 }

@@ -1,4 +1,4 @@
-import { Tab, Tabs } from '@nextui-org/react';
+import { HStack, IconButton, Tabs, Text } from '@chakra-ui/react';
 import { Suspense, useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { IoCloseSharp } from 'react-icons/io5';
@@ -42,8 +42,8 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
     { preventDefault: true },
   );
 
-  const handleSelect = useCallback((key: string | number) => {
-    setSelected(key.toString());
+  const handleSelect = useCallback((key: { value: string }) => {
+    setSelected(key.value);
   }, []);
 
   if (isGameRunning) {
@@ -63,34 +63,50 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
   }
 
   return (
-    <Tabs
-      selectedKey={selected}
-      onSelectionChange={handleSelect}
-      variant="solid"
+    <Tabs.Root
+      h="full"
+      value={selected}
+      onValueChange={handleSelect}
+      variant="line"
       size="sm"
       aria-label="Open Assets"
-      items={openAssets}
+      display="flex"
+      flexDirection="column"
     >
+      <Tabs.List>
+        {openAssets.map(asset => (
+          <Tabs.Trigger
+            key={asset.id}
+            value={asset.id}
+            className="group h-full"
+            children={
+              <HStack className="p-x-10 p-y-0 flex h-4 flex-row items-center">
+                <Text>{asset.name}</Text>
+                <IconButton
+                  size="2xs"
+                  variant="ghost"
+                  onClick={() => closeAsset(asset.id)}
+                  className="ml-4 opacity-0 group-hover:opacity-100"
+                >
+                  <IoCloseSharp />
+                </IconButton>
+              </HStack>
+            }
+          />
+        ))}
+      </Tabs.List>
       {openAssets.map(asset => (
-        <Tab
+        <Tabs.Content
           key={asset.id}
-          className="group h-full"
-          title={
-            <div className="p-x-10 p-y-0 flex h-4 flex-row items-center">
-              <div className="mr-8" />
-              <div>{asset.name}</div>
-              <div
-                onClick={() => closeAsset(asset.id)}
-                className="ml-4 opacity-0 group-hover:opacity-100"
-              >
-                <IoCloseSharp />
-              </div>
-            </div>
-          }
+          value={asset.id}
+          display="flex"
+          flexDirection="column"
+          w="full"
+          flex={1}
         >
           <ProjectViewTab asset={asset} />
-        </Tab>
+        </Tabs.Content>
       ))}
-    </Tabs>
+    </Tabs.Root>
   );
 }
