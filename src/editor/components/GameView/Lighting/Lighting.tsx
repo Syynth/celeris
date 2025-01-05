@@ -151,7 +151,7 @@ function renderPipeline(
 }
 
 export function useGiPipeline(
-  containerRef: RefObject<Container>,
+  containerRef: RefObject<Container | null>,
   sceneTexture: RenderTexture,
 ) {
   const app = useApp();

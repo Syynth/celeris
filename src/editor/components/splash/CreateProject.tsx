@@ -1,17 +1,25 @@
 import {
-  Box,
-  Button,Flex,
+  Button,
+  Flex,
+  Group,
+  HStack,
+  Heading,
+  IconButton,
   Image,
   Input,
+  VStack,
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
+import { IoCloseSharp } from 'react-icons/io5';
 
 interface CreateProjectSplashProps {
   onCreateProject: (projectName: string) => Promise<void>;
+  onCancel: () => void;
 }
 
 export function CreateProjectSplash({
   onCreateProject,
+  onCancel,
 }: CreateProjectSplashProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -29,39 +37,36 @@ export function CreateProjectSplash({
 
   return (
     <Flex flexDirection="column" m="auto" h="full" w={96}>
-      <Box
-        my="auto"
-        rounded="lg"
-        className="my-auto h-[288px] w-[288px] border-none"
-      >
+      <VStack my="auto" rounded="lg" align="stretch">
+        <HStack position="relative">
+          <Heading mx="auto" size="md">
+            New Project
+          </Heading>
+          <IconButton
+            onClick={onCancel}
+            variant="ghost"
+            position="absolute"
+            right={2}
+            size="2xs"
+          >
+            <IoCloseSharp />
+          </IconButton>
+        </HStack>
         <Image
+          mx="auto"
           alt="Celeris Logo"
           className="object-fill"
           height={288}
-          src="/celeris-logo.png"
           width={288}
+          src="/celeris-logo.png"
         />
-        <div className="absolute z-10 flex-col !items-center">
-          <p className="text-center text-lg text-white/80">New Project</p>
-        </div>
-        <div className="absolute bottom-1 z-10 ml-1 w-[calc(100%_-_8px)] justify-between space-x-2 overflow-hidden rounded-large border-1 border-white/20 py-1 shadow-small before:rounded-xl before:bg-white/10">
-          <Input
-            ref={inputRef}
-            className="rounded-lg bg-black/20 text-white"
-            placeholder="Project Name"
-            size="sm"
-          />
-          <Button
-            className="bg-black/20 text-tiny text-white"
-            color="default"
-            rounded="lg"
-            size="sm"
-            onClick={onClick}
-          >
+        <Group attached>
+          <Input ref={inputRef} variant="subtle" placeholder="Project Name" />
+          <Button variant="subtle" onClick={onClick}>
             {loading ? '...' : 'Create'}
           </Button>
-        </div>
-      </Box>
+        </Group>
+      </VStack>
     </Flex>
   );
 }

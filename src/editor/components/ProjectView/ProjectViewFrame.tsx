@@ -79,6 +79,12 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
             key={asset.id}
             value={asset.id}
             className="group h-full"
+            onAuxClick={e => {
+              if (e.button === 1) {
+                e.preventDefault();
+                closeAsset(asset.id);
+              }
+            }}
             children={
               <HStack className="p-x-10 p-y-0 flex h-4 flex-row items-center">
                 <Text>{asset.name}</Text>
