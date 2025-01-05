@@ -3,6 +3,8 @@ import { Suspense, useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { IoCloseSharp } from 'react-icons/io5';
 
+import { useSetWindowSizeOnce } from '~/lib/utils.ts';
+
 import { GameView } from '~/editor/components/GameView';
 import {
   useAssetListener,
@@ -17,6 +19,7 @@ interface ProjectViewFrameProps {
 }
 
 export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
+  useSetWindowSizeOnce(1920, 1080);
   const openAssets = useOpenAssets();
   const { closeAsset } = useOpenAssetControls();
 

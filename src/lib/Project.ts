@@ -41,6 +41,12 @@ export function addRecentProject(projectName: string): void {
   localStorage.setItem(RECENT_PROJECTS, JSON.stringify(recents));
 }
 
+export function removeRecentProject(projectName: string): void {
+  let recents = listRecentProjects();
+  recents = recents.filter(r => r !== projectName);
+  localStorage.setItem(RECENT_PROJECTS, JSON.stringify(recents));
+}
+
 export type Project = z.infer<typeof ProjectSchema>;
 
 export function newProject(name: string): Project {

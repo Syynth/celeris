@@ -12,6 +12,8 @@ import {
 import { useRef, useState } from 'react';
 import { IoCloseSharp } from 'react-icons/io5';
 
+import { useSetWindowSize } from '~/lib/utils.ts';
+
 interface CreateProjectSplashProps {
   onCreateProject: (projectName: string) => Promise<void>;
   onCancel: () => void;
@@ -21,6 +23,7 @@ export function CreateProjectSplash({
   onCreateProject,
   onCancel,
 }: CreateProjectSplashProps) {
+  useSetWindowSize(600, 600);
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   function onClick() {
