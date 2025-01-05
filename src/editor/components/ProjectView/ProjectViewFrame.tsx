@@ -75,37 +75,47 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
       aria-label="Open Assets"
       display="flex"
       flexDirection="column"
+      gap={0.5}
     >
       <Tabs.List>
         {openAssets.map(asset => (
           <Tabs.Trigger
             key={asset.id}
             value={asset.id}
-            className="group h-full"
+            bg={selected === asset.id ? 'whiteAlpha.100' : undefined}
+            colorPalette={selected === asset.id ? 'blue' : undefined}
             onAuxClick={e => {
               if (e.button === 1) {
                 e.preventDefault();
                 closeAsset(asset.id);
               }
             }}
-            children={
-              <HStack className="p-x-10 p-y-0 flex h-4 flex-row items-center">
-                <Text>{asset.name}</Text>
-                <IconButton
-                  size="2xs"
-                  variant="ghost"
-                  onClick={() => closeAsset(asset.id)}
-                  className="ml-4 opacity-0 group-hover:opacity-100"
-                >
-                  <IoCloseSharp />
-                </IconButton>
-              </HStack>
-            }
-          />
+          >
+            <HStack gap={1}>
+              <Text
+                fontSize="small"
+                fontWeight={selected === asset.id ? 'normal' : 'light'}
+              >
+                {asset.name}
+              </Text>
+              <IconButton
+                asChild
+                h={6}
+                py={1}
+                size="2xs"
+                variant="ghost"
+                colorPalette="gray"
+                onClick={() => closeAsset(asset.id)}
+              >
+                <IoCloseSharp />
+              </IconButton>
+            </HStack>
+          </Tabs.Trigger>
         ))}
       </Tabs.List>
       {openAssets.map(asset => (
         <Tabs.Content
+          p={0}
           key={asset.id}
           value={asset.id}
           display="flex"

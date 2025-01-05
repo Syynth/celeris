@@ -69,7 +69,6 @@ export function SpriteView({ asset, absolutePath }: SpriteViewProps) {
   // handle wheel for zoom
   const lastZoomTime = useRef(0);
   function handleWheel(e: WheelEvent<HTMLDivElement>) {
-    e.preventDefault();
     const now = Date.now();
     if (now - lastZoomTime.current < 50) return;
     lastZoomTime.current = now;
@@ -145,6 +144,7 @@ export function SpriteView({ asset, absolutePath }: SpriteViewProps) {
         ref={imgRef}
         src={data}
         userSelect="none"
+        maxW="full"
         pointerEvents="none"
         shadow="lg"
         style={{

@@ -35,7 +35,14 @@ export function MainLayout(props: PropsWithChildren<MainLayoutProps>) {
           <PanelResizeHandle id="resize-handle" />
           <HStack asChild p={1} align="stretch">
             <Panel defaultSize={80} id="right-panel">
-              <VStack p={2} flex={1} align="stretch" rounded="md" bg={panelBg}>
+              <VStack
+                p={0}
+                flex={1}
+                align="stretch"
+                overflow="hidden"
+                rounded="md"
+                bg={panelBg}
+              >
                 {props.children}
               </VStack>
             </Panel>
