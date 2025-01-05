@@ -6,25 +6,25 @@
       "id": "a26bd470-aeb2-4b76-a0c8-1f7a70be53eb",
       "name": "rename.ink",
       "assetType": "ink",
-      "lastKnownPath": "/Users/syynth/code/js/@s92/celeris/demo-project/rename.ink"
-    },
-    "1d9038b3-2e68-4658-b477-f2bfb1c9db5f": {
-      "id": "1d9038b3-2e68-4658-b477-f2bfb1c9db5f",
-      "name": "Minnie_v2_[VS8].png",
-      "assetType": "sprite",
-      "lastKnownPath": "/Users/syynth/code/js/@s92/celeris/demo-project/sprites/Minnie_v2_[VS8].png"
+      "lastKnownPath": "C:\\Users\\benco\\code\\rs\\celeris\\demo-project\\rename.ink"
     },
     "8f5c35a0-cbe8-422e-8805-719ac93e01b4": {
       "id": "8f5c35a0-cbe8-422e-8805-719ac93e01b4",
       "name": "celeris-logo copy.png",
       "assetType": "sprite",
-      "lastKnownPath": "/Users/syynth/code/js/@s92/celeris/demo-project/sprites/celeris-logo copy.png"
+      "lastKnownPath": "C:\\Users\\benco\\code\\rs\\celeris\\demo-project\\sprites\\celeris-logo copy.png"
     },
     "09252c0e-90a1-403b-adbe-24b88d319b54": {
       "id": "09252c0e-90a1-403b-adbe-24b88d319b54",
       "name": "celeris-logo.png",
       "assetType": "sprite",
-      "lastKnownPath": "/Users/syynth/code/js/@s92/celeris/demo-project/sprites/celeris-logo.png"
+      "lastKnownPath": "C:\\Users\\benco\\code\\rs\\celeris\\demo-project\\sprites\\celeris-logo.png"
+    },
+    "1d9038b3-2e68-4658-b477-f2bfb1c9db5f": {
+      "id": "1d9038b3-2e68-4658-b477-f2bfb1c9db5f",
+      "name": "Minnie_v2_[VS8].png",
+      "assetType": "sprite",
+      "lastKnownPath": "C:\\Users\\benco\\code\\rs\\celeris\\demo-project\\sprites\\Minnie_v2_[VS8].png"
     }
   }
 }

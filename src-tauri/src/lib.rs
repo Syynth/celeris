@@ -42,6 +42,7 @@ async fn start_server(
     app.fs_scope()
         .allow_directory(&dir_path, true)
         .map_err(|err| format!("Failed to allow directory: {}", err))?;
+    println!("Access allowed");
 
     if !dir_path.exists() || !dir_path.is_dir() {
         return Err("Invalid directory path".into());

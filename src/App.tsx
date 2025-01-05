@@ -1,7 +1,15 @@
-import { save } from '@tauri-apps/plugin-dialog';
+import { open, save } from '@tauri-apps/plugin-dialog';
 import { useMachine } from '@xstate/react';
 import { P, match } from 'ts-pattern';
 import { CurrentProjectProvider } from '~/contexts/CurrentProject';
+
+import {
+  importProjectAssets,
+  loadProject,
+  newProject,
+  saveProject,
+} from '~/lib/Project';
+
 import { ProjectBrowser } from '~/editor/components/ProjectBrowser';
 import { ProjectViewFrame } from '~/editor/components/ProjectView';
 import { CreateProjectSplash } from '~/editor/components/splash/CreateProject';
@@ -10,13 +18,6 @@ import { RecentProjects } from '~/editor/components/splash/RecentProjects';
 import { MainLayout } from '~/editor/layouts/MainLayout';
 import { RootLayout } from '~/editor/layouts/RootLayout';
 import { EditorSessionMachine } from '~/editor/machines/EditorSession';
-
-import {
-  importProjectAssets,
-  loadProject,
-  newProject,
-  saveProject,
-} from '~/lib/Project';
 
 import { AssetsProvider } from './editor/contexts/Assets';
 
@@ -36,6 +37,16 @@ function App() {
     }
   }
 
+  async function tryFindProject() {
+    const path = await open({
+      dialog: 'open',
+      filters: [{ name: 'Celeris Project', extensions: ['celeris'] }],
+    });
+    if (path) {
+      await tryLoadProject(path);
+    }
+  }
+
   async function startProjectCreation() {
     send({ type: 'project.create' });
   }
@@ -50,6 +61,10 @@ function App() {
 
   function stopProject() {
     send({ type: 'project.stop' });
+  }
+
+  function cancelProjectCreation() {
+    send({ type: 'project.cancel' });
   }
 
   async function tryLoadProject(path: string) {
@@ -67,14 +82,21 @@ function App() {
         .with({ value: 'recentProjectSelection' }, () => (
           <RecentProjects
             onRequestLoad={tryLoadProject}
+            onRequestFind={tryFindProject}
             onRequestCreation={startProjectCreation}
           />
         ))
         .with({ value: 'projectCreation' }, () => (
-          <CreateProjectSplash onCreateProject={createProject} />
+          <CreateProjectSplash
+            onCancel={cancelProjectCreation}
+            onCreateProject={createProject}
+          />
         ))
         .with({ value: 'projectLoaded', context: { project: null } }, () => (
-          <CreateProjectSplash onCreateProject={createProject} />
+          <CreateProjectSplash
+            onCancel={cancelProjectCreation}
+            onCreateProject={createProject}
+          />
         ))
         .with(
           {

@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Tree, UncontrolledTreeEnvironment } from 'react-complex-tree';
 import 'react-complex-tree/lib/style-modern.css';
 import { useCurrentProjectReference } from '~/contexts/CurrentProject';
+
 import { useOpenAssetControls } from '~/editor/contexts/Assets';
 
 import { ProjectTreeDataProvider } from './ProjectTreeDataProvider';

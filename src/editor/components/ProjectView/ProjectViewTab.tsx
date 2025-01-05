@@ -1,3 +1,4 @@
+import { VStack } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { resolve } from '@tauri-apps/api/path';
 import { match } from 'ts-pattern';
@@ -23,7 +24,7 @@ export function ProjectViewTab({ asset }: ProjectViewTabProps) {
   });
 
   return (
-    <div className="h-full">
+    <VStack align="stretch" h="full">
       {data &&
         match(asset)
           .with({ assetType: 'sprite' }, () => (
@@ -39,6 +40,6 @@ export function ProjectViewTab({ asset }: ProjectViewTabProps) {
             <MachineView absolutePath={data} asset={asset} />
           ))
           .otherwise(() => null)}
-    </div>
+    </VStack>
   );
 }

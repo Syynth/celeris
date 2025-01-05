@@ -32,7 +32,6 @@ export const AssetRefSchema = z.object({
 });
 
 export type AssetRef = z.infer<typeof AssetRefSchema>;
-export type AssetMap = Record<string, AssetRef>;
 
 export async function getProjectDirectory({
   path,
@@ -126,6 +125,7 @@ async function getLastKnownPath(
     resolve(parentDir, fileName),
     resolve(projectRef.path),
   ]);
+  // TODO: Normalize path correctly across Windows/MacOS
   return [projectDir, lastKnownPath.replace(projectDir, '').slice(1)];
 }
 

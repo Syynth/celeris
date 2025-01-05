@@ -1,19 +1,25 @@
 import {
   Button,
-  Card,
-  CardFooter,
-  CardHeader,
+  Flex,
+  Group,
+  HStack,
+  Heading,
+  IconButton,
   Image,
   Input,
-} from '@nextui-org/react';
+  VStack,
+} from '@chakra-ui/react';
 import { useRef, useState } from 'react';
+import { IoCloseSharp } from 'react-icons/io5';
 
 interface CreateProjectSplashProps {
   onCreateProject: (projectName: string) => Promise<void>;
+  onCancel: () => void;
 }
 
 export function CreateProjectSplash({
   onCreateProject,
+  onCancel,
 }: CreateProjectSplashProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -30,45 +36,37 @@ export function CreateProjectSplash({
   }
 
   return (
-    <div className="mx-auto my-auto flex h-full w-[288px] flex-col">
-      <Card
-        isFooterBlurred
-        radius="lg"
-        className="my-auto h-[288px] w-[288px] border-none"
-      >
+    <Flex flexDirection="column" m="auto" h="full" w={96}>
+      <VStack my="auto" rounded="lg" align="stretch">
+        <HStack position="relative">
+          <Heading mx="auto" size="md">
+            New Project
+          </Heading>
+          <IconButton
+            onClick={onCancel}
+            variant="ghost"
+            position="absolute"
+            right={2}
+            size="2xs"
+          >
+            <IoCloseSharp />
+          </IconButton>
+        </HStack>
         <Image
+          mx="auto"
           alt="Celeris Logo"
           className="object-fill"
           height={288}
-          isBlurred
-          isZoomed
-          src="/celeris-logo.png"
           width={288}
+          src="/celeris-logo.png"
         />
-        <CardHeader className="absolute z-10 flex-col !items-center">
-          <p className="text-center text-lg text-white/80">New Project</p>
-        </CardHeader>
-        <CardFooter className="absolute bottom-1 z-10 ml-1 w-[calc(100%_-_8px)] justify-between space-x-2 overflow-hidden rounded-large border-1 border-white/20 py-1 shadow-small before:rounded-xl before:bg-white/10">
-          <Input
-            ref={inputRef}
-            variant="underlined"
-            className="rounded-lg bg-black/20 text-white"
-            placeholder="Project Name"
-            size="sm"
-          />
-          <Button
-            className="bg-black/20 text-tiny text-white"
-            variant="flat"
-            color="default"
-            radius="lg"
-            size="sm"
-            onClick={onClick}
-            isLoading={loading}
-          >
+        <Group attached>
+          <Input ref={inputRef} variant="subtle" placeholder="Project Name" />
+          <Button variant="subtle" onClick={onClick}>
             {loading ? '...' : 'Create'}
           </Button>
-        </CardFooter>
-      </Card>
-    </div>
+        </Group>
+      </VStack>
+    </Flex>
   );
 }

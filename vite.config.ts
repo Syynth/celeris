@@ -1,9 +1,8 @@
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import path from 'node:path';
 import { defineConfig } from 'vite';
 import glsl from 'vite-plugin-glsl';
 
-// @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
 const ReactCompilerConfig = {
@@ -27,7 +26,6 @@ export default defineConfig(async () => ({
   clearScreen: false,
   resolve: {
     alias: {
-      // @ts-expect-error __dirname is a nodejs global
       '~': path.resolve(__dirname, './src'),
     },
   },
