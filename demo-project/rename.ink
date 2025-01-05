@@ -18,12 +18,10 @@ Monsieur Phileas Fogg returned home early from the Reform Club, and in a new-fan
 + "But of course"
     -> ending
 
-
 === nod ===
 I nodded curtly, not believing a word of it.
 -> ending
 
-
-=== ending
+=== ending ===
 "We shall circumnavigate the globe within eighty days." He was quite calm as he proposed this wild scheme. "We leave for Paris on the 8:25. In an hour."
 -> END

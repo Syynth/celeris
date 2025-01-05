@@ -1,10 +1,12 @@
-import { Editor, OnChange } from '@monaco-editor/react';
+import { Editor, OnChange, OnMount } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { useCallback } from 'react';
 import { useColorModeValue } from '~/components/ui/color-mode.tsx';
 
 import { AssetRef } from '~/lib/Assets';
+
+import language from './schema.language.json';
 
 interface InkViewProps {
   absolutePath: string;
@@ -29,7 +31,20 @@ export function InkView({ absolutePath, asset }: InkViewProps) {
     }
   }, []);
 
+  const handleMount: OnMount = useCallback((_editor, monaco) => {
+    monaco.languages.register({ id: 'ink' });
+    monaco.languages.setLanguageConfiguration('ink', language as any);
+  }, []);
+
   const theme = useColorModeValue('light', 'vs-dark');
 
-  return <Editor theme={theme} onChange={handleChange} value={text} />;
+  return (
+    <Editor
+      language="ink"
+      theme={theme}
+      onChange={handleChange}
+      value={text}
+      onMount={handleMount}
+    />
+  );
 }
