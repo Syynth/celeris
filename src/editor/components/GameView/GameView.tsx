@@ -1,41 +1,64 @@
-import { Application, useAssets, useExtend } from '@pixi/react';
-import { InputProvider } from '@s92/celeris-input/react-pixi';
-import { Container, Sprite, Spritesheet, Text, Texture } from 'pixi.js';
-import { Suspense, useRef } from 'react';
-
-import { PlayerActions, PlayerBindings } from '~/game/inputs';
-
-import { Player } from './Player';
+import { chakra } from '@chakra-ui/react';
+import { Viewport } from 'pixi-viewport';
+import { Application, Assets, Container, Sprite, Texture } from 'pixi.js';
+import { useEffect, useRef } from 'react';
 
 interface GameViewProps {}
 
+async function initGameView(canvas: HTMLCanvasElement) {
+  const app = new Application();
+  await app.init({
+    canvas,
+    width: 640,
+    height: 360,
+  });
+
+  const container = new Container();
+  const vp = new Viewport({
+    worldWidth: 960,
+    worldHeight: 540,
+    screenWidth: 640,
+    screenHeight: 360,
+    passiveWheel: true,
+    events: app.renderer.events,
+  });
+  vp.addChild(container);
+  app.stage.addChild(vp);
+
+  const playerTex = await Assets.load<Texture>({
+    src: '/sprites/Minnie24px_VS8.png',
+    loadParser: 'loadTextures',
+  });
+
+  const fgTex = await Assets.load<Texture>('/sprites/SSFG.png');
+  const pgTex = await Assets.load<Texture>('/sprites/SSPG.png');
+
+  const pg = new Sprite(pgTex);
+  pg.x = 0;
+  pg.y = 0;
+  const fg = new Sprite(fgTex);
+  fg.x = 0;
+  fg.y = 0;
+  const player = new Sprite(playerTex);
+  player.x = 320;
+  player.y = 180;
+
+  container.addChild(pg);
+  container.addChild(fg);
+  container.addChild(player);
+
+  app.render();
+}
+
 export function GameView({}: GameViewProps) {
-  useExtend({ Container, Sprite, Text, Spritesheet });
+  const ref = useRef<HTMLCanvasElement>(null);
 
-  const { assets, isSuccess } = useAssets<Texture>([
-    { src: '/sprites/Minnie24px_VS8.png' },
-    { src: '/sprites/SSFG.png' },
-    { src: '/sprites/SSPG.png' },
-  ]);
-  const [texture, fg, pg] = assets ?? [];
+  useEffect(() => {
+    const canvas = ref.current;
+    if (canvas) {
+      void initGameView(canvas);
+    }
+  }, []);
 
-  const currentPlayer = useRef<any>({ x: 0, y: 0, texture });
-
-  const onMove = (x: number, y: number, texture: Texture) => {
-    currentPlayer.current = { x, y, texture };
-  };
-
-  return (
-    isSuccess && (
-      <Application width={960} height={1100} background={0x00ffff}>
-        <InputProvider actions={PlayerActions} bindings={PlayerBindings}>
-          <Suspense fallback={<sprite texture={pg || texture || fg || pg} />}>
-            <sprite texture={pg} x={0} y={0} />
-            <sprite texture={fg} x={0} y={0} />
-            <Player onMove={onMove} />
-          </Suspense>
-        </InputProvider>
-      </Application>
-    )
-  );
+  return <chakra.canvas bg="red.400" width={640} height={360} ref={ref} />;
 }

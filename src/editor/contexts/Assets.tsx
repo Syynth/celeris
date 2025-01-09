@@ -9,16 +9,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useCurrentProject } from '~/contexts/CurrentProject';
 
-import { AssetRef } from '~/lib/Assets';
-
-type AssetListener = (assetId: string, openAssets: string[]) => void;
+type AssetListener = (assetPath: string, openAssets: string[]) => void;
 
 interface AssetsContextValue {
   openAssets: string[];
-  openAsset: (assetId: string) => void;
-  closeAsset: (assetId: string) => void;
+  openAsset: (assetPath: string) => void;
+  closeAsset: (assetPath: string) => void;
   attachListener: (listener: AssetListener) => void;
   detachListener: (listener: AssetListener) => void;
   assetListeners: Set<AssetListener>;
@@ -42,26 +39,26 @@ export function AssetsProvider({
   const [assetListeners] = useState(new Set<AssetListener>());
 
   const openAsset = useCallback(
-    (assetId: string) => {
-      if (!openAssets.includes(assetId)) {
-        const newAssets = [...openAssets, assetId];
+    (assetPath: string) => {
+      if (!openAssets.includes(assetPath)) {
+        const newAssets = [...openAssets, assetPath];
         setOpenAssets(newAssets);
-        assetListeners.forEach(listener => listener(assetId, newAssets));
+        assetListeners.forEach(listener => listener(assetPath, newAssets));
       } else {
-        assetListeners.forEach(listener => listener(assetId, openAssets));
+        assetListeners.forEach(listener => listener(assetPath, openAssets));
       }
     },
     [openAssets],
   );
 
   const closeAsset = useCallback(
-    (assetId: string) => {
-      if (openAssets.includes(assetId)) {
-        const newAssets = openAssets.filter(id => id !== assetId);
+    (assetPath: string) => {
+      if (openAssets.includes(assetPath)) {
+        const newAssets = openAssets.filter(id => id !== assetPath);
         setOpenAssets(newAssets);
-        assetListeners.forEach(listener => listener(assetId, newAssets));
+        assetListeners.forEach(listener => listener(assetPath, newAssets));
       } else {
-        assetListeners.forEach(listener => listener(assetId, openAssets));
+        assetListeners.forEach(listener => listener(assetPath, openAssets));
       }
     },
     [openAssets],
@@ -105,15 +102,8 @@ export function AssetsProvider({
   );
 }
 
-export function useOpenAssetIds(): string[] {
+export function useOpenAssetPaths(): string[] {
   return useContext(AssetsContext).openAssets;
-}
-
-export function useOpenAssets(): AssetRef[] {
-  const project = useCurrentProject();
-  const assetIds = useOpenAssetIds();
-
-  return assetIds.map(id => project.assets[id]).filter(Boolean);
 }
 
 export function useAssetListener(listener: AssetListener) {

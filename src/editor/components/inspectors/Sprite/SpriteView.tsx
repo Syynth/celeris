@@ -30,7 +30,7 @@ export function SpriteView({ asset, absolutePath }: SpriteViewProps) {
   const startPos = useRef({ x: 0, y: 0 });
 
   const { data } = useQuery({
-    queryKey: ['spriteView', asset.id],
+    queryKey: ['spriteView', asset.lastKnownPath],
     queryFn: async () => {
       try {
         const fileData = await readFile(absolutePath);

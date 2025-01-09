@@ -23,6 +23,7 @@ export function ProjectToolbar({
           size="sm"
           h={6}
           p={0}
+          variant="subtle"
           alignSelf="center"
           colorPalette={isRunning ? 'red' : 'info'}
         >

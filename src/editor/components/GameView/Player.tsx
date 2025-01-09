@@ -1,4 +1,4 @@
-import { useAssets, useTick } from '@pixi/react';
+import { useAsset, useTick } from '@pixi/react';
 import { useActionState } from '@s92/celeris-input/react-pixi';
 import { Sprite, Spritesheet, Texture } from 'pixi.js';
 import { useRef } from 'react';
@@ -26,14 +26,10 @@ export function Player({
 }: {
   onMove?: (x: number, y: number, tex: Texture) => void;
 }) {
-  const {
-    assets: [texture],
-  } = useAssets<Texture>([{ src: '/sprites/Minnie24px_VS8.png' }]);
-  const {
-    assets: [spritesheetData],
-  } = useAssets<Spritesheet>([
-    { src: '/sprites/Minnie_v2_[VS8].spritesheet.json' },
-  ]);
+  const texture = useAsset<Texture>({ src: '/sprites/Minnie24px_VS8.png' });
+  const spritesheetData = useAsset<Spritesheet>({
+    src: '/sprites/Minnie_v2_[VS8].spritesheet.json',
+  });
   const spriteRef = useRef<Sprite>(null);
   const timeRef = useRef<number>(0);
   const directionRef = useRef<Direction>('s');

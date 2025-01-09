@@ -1,4 +1,5 @@
-import { useEffect, useMemo } from 'react';
+import { Heading, VStack } from '@chakra-ui/react';
+import { useEffect, useMemo, useState } from 'react';
 import { Tree, UncontrolledTreeEnvironment } from 'react-complex-tree';
 import 'react-complex-tree/lib/style-modern.css';
 import { useCurrentProjectReference } from '~/contexts/CurrentProject';
@@ -20,13 +21,24 @@ export function ProjectBrowser(_: ProjectBrowserProps) {
   useEffect(() => {
     const unwatch = dataProvider.beginFsWatch();
     return () => {
-      unwatch();
+      void unwatch();
     };
   }, [dataProvider]);
 
+  const [, forceUpdate] = useState(0);
+
   return (
-    <div className="project-browser min-w-48 p-2">
-      <h1>Assets</h1>
+    <VStack align="stretch" minW={48}>
+      <Heading
+        size="sm"
+        onClick={() => {
+          console.log('forcing update');
+          forceUpdate(s => s + 1);
+        }}
+      >
+        Assets
+        <pre>{['...', Array.from(dataProvider.cache.keys())].join('\n')}</pre>
+      </Heading>
       <UncontrolledTreeEnvironment
         dataProvider={dataProvider}
         getItemTitle={item => item.data.name}
@@ -36,9 +48,14 @@ export function ProjectBrowser(_: ProjectBrowserProps) {
         canDropOnNonFolder={false}
         onSelectItems={selection => {
           selection
-            .map(s => dataProvider.getTreeItemSync(s))
-            .filter(s => s?.data?.meta?.id)
-            .forEach(i => openAsset(i?.data.meta.id));
+            .filter(s => typeof s === 'string')
+            .forEach(s => openAsset(s));
+          // selection
+          //   .map(s => dataProvider.getTreeItemSync(s))
+          //   .filter(s => {
+          //     return s?.data?.meta?.id;
+          //   })
+          //   .forEach(i => openAsset(i?.data.meta.id));
         }}
         viewState={{}}
       >
@@ -48,6 +65,6 @@ export function ProjectBrowser(_: ProjectBrowserProps) {
           treeLabel="Tree Example"
         />
       </UncontrolledTreeEnvironment>
-    </div>
+    </VStack>
   );
 }

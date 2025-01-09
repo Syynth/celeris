@@ -15,7 +15,7 @@ interface InkViewProps {
 
 export function InkView({ absolutePath, asset }: InkViewProps) {
   const { data: text } = useQuery({
-    queryKey: ['inkView', asset.id],
+    queryKey: ['inkView', asset.lastKnownPath],
     queryFn: async () => {
       try {
         return await readTextFile(absolutePath);

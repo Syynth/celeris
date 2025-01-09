@@ -6,24 +6,24 @@ import {
   WatchEventKindModify,
   WatchEventKindRemove,
   readDir,
-  readTextFile,
   stat,
   watch,
 } from '@tauri-apps/plugin-fs';
 import { TreeDataProvider, TreeItem, TreeItemIndex } from 'react-complex-tree';
 import { P, match } from 'ts-pattern';
 
-import { getProjectDirectory, renameAsset } from '~/lib/Assets';
+import { getProjectDirectory } from '~/lib/Assets';
 import { ProjectReference } from '~/lib/Project';
 
 export class ProjectTreeDataProvider implements TreeDataProvider {
+  // @ts-ignore
   private project: ProjectReference;
-  private path: string;
-  private basePath: Promise<string>;
+  private readonly path: string;
+  private readonly basePath: Promise<string>;
   private watching: boolean = false;
 
   private treeChangeListeners: ((itemIds: TreeItemIndex[]) => void)[] = [];
-  private cache: Map<TreeItemIndex, TreeItem<any>> = new Map();
+  cache: Map<TreeItemIndex, TreeItem<any>> = new Map();
 
   constructor(project: ProjectReference) {
     this.project = project;
@@ -38,9 +38,8 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
       console.log('attaching watch to', { path });
       return watch(
         path,
-        // @ts-expect-error Not sure why this is typed wrong
-        async ({ attrs, paths, kind }: WatchEvent) => {
-          match(kind as WatchEvent['type'])
+        async ({ attrs, paths, type }: WatchEvent) => {
+          match(type)
             .with('any', () => {
               console.log('Any:', { paths, attrs });
             })
@@ -138,6 +137,7 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
       })
       .with({ kind: 'rename' }, modify => {
         console.log('Modified rename:', { modify, paths, attrs });
+        this.treeChangeListeners.forEach(l => l(paths));
       })
       .exhaustive();
   }
@@ -186,13 +186,13 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
     }
 
     const itemId = item.data.meta.id;
-    const asset = this.project.project.assets[itemId];
     const cacheItem = this.cache.get(itemId);
     if (cacheItem?.data) {
       cacheItem.data.name = name;
     }
-    const path = await renameAsset(this.project, asset, name);
-    this.treeChangeListeners.forEach(l => l([item.index, path]));
+    return;
+    // const path = await renameAsset(this.project, asset, name);
+    this.treeChangeListeners.forEach(l => l([item.index, name]));
   };
 
   public getRootItem = async (): Promise<TreeItem<any>> => {
@@ -200,7 +200,12 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
     const entries = await readDir(basePath);
     const children = await Promise.all(
       entries
-        .filter(c => !c.name.startsWith('.') && !c.name.endsWith('.meta'))
+        .filter(
+          c =>
+            !c.name.startsWith('.') &&
+            !c.name.endsWith('.meta') &&
+            !c.name.endsWith('.celeris'),
+        )
         .map(async c => await resolve(basePath, c.name)),
     );
     return {
@@ -225,7 +230,7 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
     return item;
   };
 
-  getTreeItemSync: (itemId: TreeItemIndex) => TreeItem<any> | null = itemId =>
+  getTreeItemSync: (itemId: TreeItemIndex) => TreeItem | null = itemId =>
     this.cache.get(itemId) ?? null;
 
   private getTreeItemImpl: TreeDataProvider['getTreeItem'] = async itemId => {
@@ -252,8 +257,8 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
       try {
         const metaInfo = await stat(itemId + '.meta');
         if (metaInfo?.isFile) {
-          const metaJson = await readTextFile(itemId + '.meta');
-          baseItem.data.meta = JSON.parse(metaJson);
+          baseItem.data.meta = baseItem.data.meta ?? {};
+          baseItem.data.meta.id = itemId;
         }
       } catch {
         return baseItem;

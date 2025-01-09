@@ -1,4 +1,4 @@
-import { resolve } from '@tauri-apps/api/path';
+import { resolve, sep } from '@tauri-apps/api/path';
 import {
   DirEntry,
   readDir,
@@ -6,7 +6,6 @@ import {
   rename,
   writeTextFile,
 } from '@tauri-apps/plugin-fs';
-import { v4 } from 'uuid';
 import { z } from 'zod';
 
 import { ProjectReference, saveProject } from './Project';
@@ -17,15 +16,18 @@ export const ASSET_EXTENSIONS = [
   'ink',
   'machine',
 ] as const;
+
 export const ASSET_IMPORTERS = {
-  [ASSET_EXTENSIONS[0]]: importSprite,
-  [ASSET_EXTENSIONS[1]]: importSpriteSheet,
-  [ASSET_EXTENSIONS[2]]: importInk,
-  [ASSET_EXTENSIONS[3]]: importMachine,
+  [ASSET_EXTENSIONS[0]]: { importer: importSprite, assetType: 'sprite' },
+  [ASSET_EXTENSIONS[1]]: {
+    importer: importSpriteSheet,
+    assetType: 'spritesheet',
+  },
+  [ASSET_EXTENSIONS[2]]: { importer: importInk, assetType: 'ink' },
+  [ASSET_EXTENSIONS[3]]: { importer: importMachine, assetType: 'machine' },
 } as const;
 
 export const AssetRefSchema = z.object({
-  id: z.string(),
   name: z.string().default('Asset Name'),
   assetType: z.enum(['sprite', 'spritesheet', 'ink', 'map', 'machine']),
   lastKnownPath: z.string(),
@@ -110,7 +112,7 @@ export async function importAsset(
 ): Promise<AssetRef | null> {
   for (const extension of ASSET_EXTENSIONS) {
     if (entry.name.endsWith(extension)) {
-      return await ASSET_IMPORTERS[extension](projectRef, entry);
+      return await ASSET_IMPORTERS[extension].importer(projectRef, entry);
     }
   }
   return null;
@@ -127,6 +129,23 @@ async function getLastKnownPath(
   ]);
   // TODO: Normalize path correctly across Windows/MacOS
   return [projectDir, lastKnownPath.replace(projectDir, '').slice(1)];
+}
+
+export function getAssetType(assetPath: string) {
+  for (const extension of ASSET_EXTENSIONS) {
+    if (assetPath.endsWith(extension)) {
+      return ASSET_IMPORTERS[extension].assetType;
+    }
+  }
+  return 'map';
+}
+
+export function getAssetRef(assetPath: string): AssetRef {
+  return {
+    name: assetPath.split(sep()).pop() ?? 'Asset Name',
+    assetType: getAssetType(assetPath),
+    lastKnownPath: assetPath,
+  };
 }
 
 export async function renameAsset(
@@ -181,7 +200,6 @@ async function importSprite(
   );
 
   const assetRef: AssetRef = {
-    id: v4(),
     name: entry.name,
     assetType: 'sprite',
     lastKnownPath,
@@ -206,7 +224,6 @@ async function importSpriteSheet(
   );
 
   const assetRef: AssetRef = {
-    id: v4(),
     name: entry.name,
     assetType: 'spritesheet',
     lastKnownPath,
@@ -231,7 +248,6 @@ async function importInk(
   );
 
   const assetRef: AssetRef = {
-    id: v4(),
     name: entry.name,
     assetType: 'ink',
     lastKnownPath,
@@ -256,7 +272,6 @@ async function importMachine(
   );
 
   const assetRef: AssetRef = {
-    id: v4(),
     name: entry.name,
     assetType: 'machine',
     lastKnownPath,

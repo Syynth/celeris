@@ -3,13 +3,6 @@ import { resolve } from '@tauri-apps/api/path';
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { z } from 'zod';
 
-import {
-  AssetRef,
-  AssetRefSchema,
-  importAsset,
-  recursivelyFindAllAssets,
-} from './Assets';
-
 const RECENT_PROJECTS = 's92.celeris.recent-projects';
 
 export type ProjectReference = {
@@ -22,7 +15,6 @@ const recentProjectsSchema = z.array(z.string());
 export const ProjectSchema = z.object({
   name: z.string(),
   settings: z.record(z.unknown()),
-  assets: z.record(z.string(), AssetRefSchema),
 });
 
 export function listRecentProjects(): string[] {
@@ -53,7 +45,6 @@ export function newProject(name: string): Project {
   return {
     name,
     settings: {},
-    assets: {},
   };
 }
 
@@ -79,28 +70,5 @@ export async function saveProject({
 }
 
 export async function importProjectAssets(project: ProjectReference) {
-  const { imported, unimported } = await recursivelyFindAllAssets(project);
-
-  const newAssetRefs: AssetRef[] = [];
-  for (const asset of unimported) {
-    const ref = await importAsset(project, asset);
-    if (ref) {
-      newAssetRefs.push(ref);
-    }
-  }
-  const knownMetaFiles: AssetRef[] = (
-    await Promise.all(
-      imported.map(i =>
-        readTextFile(i.fullPath + '.meta').then(text => [text, i.fullPath]),
-      ),
-    )
-  ).map(
-    ([text, lastKnownPath]) =>
-      ({ ...JSON.parse(text), lastKnownPath }) as AssetRef,
-  );
-
-  project.project.assets = Object.fromEntries(
-    newAssetRefs.concat(knownMetaFiles).map(m => [m.id, m]),
-  );
   await saveProject(project);
 }

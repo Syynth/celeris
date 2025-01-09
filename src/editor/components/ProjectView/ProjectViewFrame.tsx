@@ -1,15 +1,17 @@
 import { HStack, IconButton, Tabs, Text } from '@chakra-ui/react';
+import { sep } from '@tauri-apps/api/path';
 import { Suspense, useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { IoCloseSharp } from 'react-icons/io5';
 
+import { getAssetRef } from '~/lib/Assets.ts';
 import { useSetWindowSizeOnce } from '~/lib/utils.ts';
 
 import { GameView } from '~/editor/components/GameView';
 import {
   useAssetListener,
   useOpenAssetControls,
-  useOpenAssets,
+  useOpenAssetPaths,
 } from '~/editor/contexts/Assets';
 
 import { ProjectViewTab } from './ProjectViewTab';
@@ -20,11 +22,11 @@ interface ProjectViewFrameProps {
 
 export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
   useSetWindowSizeOnce(1920, 1080);
-  const openAssets = useOpenAssets();
+  const openAssets = useOpenAssetPaths();
   const { closeAsset } = useOpenAssetControls();
 
   const [selected, setSelected] = useState<string | null>(
-    openAssets.at(0)?.id ?? null,
+    openAssets.at(0) ?? null,
   );
 
   useAssetListener((assetId, openAssets) => {
@@ -80,23 +82,23 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
       <Tabs.List>
         {openAssets.map(asset => (
           <Tabs.Trigger
-            key={asset.id}
-            value={asset.id}
-            bg={selected === asset.id ? 'whiteAlpha.100' : undefined}
-            colorPalette={selected === asset.id ? 'blue' : undefined}
+            key={asset}
+            value={asset}
+            bg={selected === asset ? 'whiteAlpha.100' : undefined}
+            colorPalette={selected === asset ? 'blue' : undefined}
             onAuxClick={e => {
               if (e.button === 1) {
                 e.preventDefault();
-                closeAsset(asset.id);
+                closeAsset(asset);
               }
             }}
           >
             <HStack gap={1}>
               <Text
                 fontSize="small"
-                fontWeight={selected === asset.id ? 'normal' : 'light'}
+                fontWeight={selected === asset ? 'normal' : 'light'}
               >
-                {asset.name}
+                {asset.split(sep()).slice(-1)[0]}
               </Text>
               <IconButton
                 asChild
@@ -105,7 +107,7 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
                 size="2xs"
                 variant="ghost"
                 colorPalette="gray"
-                onClick={() => closeAsset(asset.id)}
+                onClick={() => closeAsset(asset)}
               >
                 <IoCloseSharp />
               </IconButton>
@@ -116,14 +118,14 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
       {openAssets.map(asset => (
         <Tabs.Content
           p={0}
-          key={asset.id}
-          value={asset.id}
+          key={asset}
+          value={asset}
           display="flex"
           flexDirection="column"
           w="full"
           flex={1}
         >
-          <ProjectViewTab asset={asset} />
+          <ProjectViewTab asset={getAssetRef(asset)} />
         </Tabs.Content>
       ))}
     </Tabs.Root>

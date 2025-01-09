@@ -19,7 +19,7 @@ export function ProjectViewTab({ asset }: ProjectViewTabProps) {
   const { path } = useCurrentProjectReference();
 
   const { data } = useQuery({
-    queryKey: ['assetData', asset.id],
+    queryKey: ['assetData', asset.lastKnownPath],
     queryFn: async () => await resolve(path, '..', asset.lastKnownPath),
   });
 

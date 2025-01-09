@@ -7,8 +7,10 @@ interface MapViewProps {
 
 export function MapView({ absolutePath, asset }: MapViewProps) {
   return (
-    <div>
-      MapView {absolutePath} {asset.name}
-    </div>
+    <pre>
+      MapView {absolutePath}
+      <br />
+      {JSON.stringify(asset, null, 2)}
+    </pre>
   );
 }
