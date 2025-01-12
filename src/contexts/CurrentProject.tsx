@@ -1,9 +1,11 @@
+import { DOMAdapter } from 'pixi.js';
 import {
   PropsWithChildren,
   ReactElement,
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
 } from 'react';
 
@@ -13,6 +15,7 @@ import {
   newProject,
   saveProject,
 } from '~/lib/Project';
+import { TauriAdapter } from '~/lib/TauriAdapter';
 
 interface CurrentProjectContextValue {
   project: ProjectReference;
@@ -49,6 +52,13 @@ export function CurrentProjectProvider({
     [project, saveProject_, closeProject],
   );
 
+  useEffect(() => {
+    const adapter = DOMAdapter.get();
+    if (adapter instanceof TauriAdapter) {
+      adapter.project = project;
+    }
+  }, [value.project]);
+
   return (
     <CurrentProjectContext.Provider value={value}>
       {children}
@@ -62,4 +72,8 @@ export function useCurrentProjectReference(): ProjectReference {
 
 export function useCurrentProject(): Project {
   return useCurrentProjectReference().project;
+}
+
+export function useSaveCurrentProject(): CurrentProjectContextValue['saveProject'] {
+  return useContext(CurrentProjectContext).saveProject;
 }

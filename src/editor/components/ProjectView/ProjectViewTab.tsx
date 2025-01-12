@@ -9,6 +9,7 @@ import { AssetRef } from '~/lib/Assets';
 import { InkView } from '../inspectors/Ink';
 import { MachineView } from '../inspectors/Machine';
 import { MapView } from '../inspectors/Map';
+import { ProjectView } from '../inspectors/Project/ProjectView';
 import { SpriteView } from '../inspectors/Sprite';
 
 interface ProjectViewTabProps {
@@ -27,6 +28,7 @@ export function ProjectViewTab({ asset }: ProjectViewTabProps) {
     <VStack align="stretch" h="full">
       {data &&
         match(asset)
+          .with({ assetType: 'project' }, () => <ProjectView />)
           .with({ assetType: 'sprite' }, () => (
             <SpriteView absolutePath={data} asset={asset} />
           ))

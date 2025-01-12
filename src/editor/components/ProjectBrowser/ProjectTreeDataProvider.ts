@@ -200,12 +200,7 @@ export class ProjectTreeDataProvider implements TreeDataProvider {
     const entries = await readDir(basePath);
     const children = await Promise.all(
       entries
-        .filter(
-          c =>
-            !c.name.startsWith('.') &&
-            !c.name.endsWith('.meta') &&
-            !c.name.endsWith('.celeris'),
-        )
+        .filter(c => !c.name.startsWith('.') && !c.name.endsWith('.meta'))
         .map(async c => await resolve(basePath, c.name)),
     );
     return {

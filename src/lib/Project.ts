@@ -1,5 +1,3 @@
-import { invoke } from '@tauri-apps/api/core';
-import { resolve } from '@tauri-apps/api/path';
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { z } from 'zod';
 
@@ -12,9 +10,13 @@ export type ProjectReference = {
 
 const recentProjectsSchema = z.array(z.string());
 
+export const ProjectSettingsSchema = z.object({
+  viewportDimensions: z.tuple([z.number(), z.number()]).default([640, 360]),
+});
+
 export const ProjectSchema = z.object({
   name: z.string(),
-  settings: z.record(z.unknown()),
+  settings: ProjectSettingsSchema.default({}),
 });
 
 export function listRecentProjects(): string[] {
@@ -44,14 +46,14 @@ export type Project = z.infer<typeof ProjectSchema>;
 export function newProject(name: string): Project {
   return {
     name,
-    settings: {},
+    settings: {
+      viewportDimensions: [640, 360],
+    },
   };
 }
 
 export async function loadProject(path: string): Promise<Project | null> {
   try {
-    await invoke('stop_server', {}).catch(() => {});
-    await invoke('start_server', { path: await resolve(path, '..') });
     const projectJson = await readTextFile(path);
     const rawProject = JSON.parse(projectJson ?? '');
     return ProjectSchema.parse(rawProject);

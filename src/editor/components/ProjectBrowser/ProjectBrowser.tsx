@@ -37,7 +37,6 @@ export function ProjectBrowser(_: ProjectBrowserProps) {
         }}
       >
         Assets
-        <pre>{['...', Array.from(dataProvider.cache.keys())].join('\n')}</pre>
       </Heading>
       <UncontrolledTreeEnvironment
         dataProvider={dataProvider}
@@ -50,12 +49,6 @@ export function ProjectBrowser(_: ProjectBrowserProps) {
           selection
             .filter(s => typeof s === 'string')
             .forEach(s => openAsset(s));
-          // selection
-          //   .map(s => dataProvider.getTreeItemSync(s))
-          //   .filter(s => {
-          //     return s?.data?.meta?.id;
-          //   })
-          //   .forEach(i => openAsset(i?.data.meta.id));
         }}
         viewState={{}}
       >

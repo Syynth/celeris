@@ -1,0 +1,6 @@
+{
+    "id": "test-machine",
+    "machineId": "test-machine-id",
+    "states": [],
+    "transitions": []
+}

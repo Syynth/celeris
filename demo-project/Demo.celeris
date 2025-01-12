@@ -1,4 +1,9 @@
 {
   "name": "Demo",
-  "settings": {}
+  "settings": {
+    "viewportDimensions": [
+      640,
+      360
+    ]
+  }
 }

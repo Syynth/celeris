@@ -15,6 +15,7 @@ export const ASSET_EXTENSIONS = [
   'spritesheet.json',
   'ink',
   'machine',
+  'celeris',
 ] as const;
 
 export const ASSET_IMPORTERS = {
@@ -25,11 +26,19 @@ export const ASSET_IMPORTERS = {
   },
   [ASSET_EXTENSIONS[2]]: { importer: importInk, assetType: 'ink' },
   [ASSET_EXTENSIONS[3]]: { importer: importMachine, assetType: 'machine' },
+  [ASSET_EXTENSIONS[4]]: { importer: importMachine, assetType: 'project' },
 } as const;
 
 export const AssetRefSchema = z.object({
   name: z.string().default('Asset Name'),
-  assetType: z.enum(['sprite', 'spritesheet', 'ink', 'map', 'machine']),
+  assetType: z.enum([
+    'sprite',
+    'spritesheet',
+    'ink',
+    'map',
+    'machine',
+    'project',
+  ]),
   lastKnownPath: z.string(),
 });
 
