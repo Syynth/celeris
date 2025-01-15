@@ -11,12 +11,18 @@ export type ProjectReference = {
 const recentProjectsSchema = z.array(z.string());
 
 export const ProjectSettingsSchema = z.object({
-  viewportDimensions: z.tuple([z.number(), z.number()]).default([640, 360]),
+  startingMap: z.string().nullable().default(null),
+  referenceResolution: z
+    .tuple([z.number().positive(), z.number().positive()])
+    .default([1920, 1080]),
 });
 
 export const ProjectSchema = z.object({
   name: z.string(),
-  settings: ProjectSettingsSchema.default({}),
+  settings: ProjectSettingsSchema.default({
+    startingMap: null,
+    referenceResolution: [1920, 1080],
+  }),
 });
 
 export function listRecentProjects(): string[] {
@@ -47,7 +53,8 @@ export function newProject(name: string): Project {
   return {
     name,
     settings: {
-      viewportDimensions: [640, 360],
+      startingMap: null,
+      referenceResolution: [1920, 1080],
     },
   };
 }

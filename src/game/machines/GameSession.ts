@@ -1,4 +1,4 @@
-import { assign, setup } from 'xstate';
+import { StateFrom, assign, setup } from 'xstate';
 
 import { Project, newProject } from '~/lib/Project';
 import { SaveFile, newSaveFile } from '~/lib/SaveFile';
@@ -17,7 +17,7 @@ type SuspendGameEvent = { type: 'game.suspend' };
 type ResumeGameEvent = { type: 'game.resume' };
 type ReloadGameEvent = { type: 'game.restart' };
 
-type GameSessionEvent =
+export type GameSessionEvent =
   | InitializeProjectEvent
   | MainMenuEvent
   | QuitGameEvent
@@ -26,6 +26,8 @@ type GameSessionEvent =
   | SuspendGameEvent
   | ResumeGameEvent
   | ReloadGameEvent;
+
+export type GameSessionState = StateFrom<typeof GameSessionMachine>;
 
 export const GameSessionMachine = setup({
   types: {

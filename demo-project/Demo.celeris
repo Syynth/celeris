@@ -1,9 +1,10 @@
 {
-  "name": "Demo",
+  "name": "Codetta",
   "settings": {
-    "viewportDimensions": [
-      640,
-      360
+    "startingMap": null,
+    "referenceResolution": [
+      1920,
+      1080
     ]
   }
 }

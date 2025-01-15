@@ -1,18 +1,20 @@
-import { HStack, IconButton, Tabs, Text } from '@chakra-ui/react';
+import { Center, HStack, IconButton, Tabs, Text } from '@chakra-ui/react';
 import { sep } from '@tauri-apps/api/path';
 import { Suspense, useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { IoCloseSharp } from 'react-icons/io5';
+import { useCurrentProjectReference } from '~/contexts/CurrentProject';
 
 import { getAssetRef } from '~/lib/Assets.ts';
 import { useSetWindowSizeOnce } from '~/lib/utils.ts';
 
-import { GameView } from '~/editor/components/GameView';
 import {
   useAssetListener,
   useOpenAssetControls,
   useOpenAssetPaths,
 } from '~/editor/contexts/Assets';
+
+import { GameView } from '~/game/components/GameView';
 
 import { ProjectViewTab } from './ProjectViewTab';
 
@@ -24,6 +26,7 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
   useSetWindowSizeOnce(1920, 1080);
   const openAssets = useOpenAssetPaths();
   const { closeAsset } = useOpenAssetControls();
+  const project = useCurrentProjectReference();
 
   const [selected, setSelected] = useState<string | null>(
     openAssets.at(0) ?? null,
@@ -54,16 +57,18 @@ export function ProjectViewFrame({ isGameRunning }: ProjectViewFrameProps) {
   if (isGameRunning) {
     return (
       <Suspense fallback={<div>loading...</div>}>
-        <GameView />
+        <GameView project={project} />
       </Suspense>
     );
   }
 
   if (openAssets.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center">
-        <div className="text-2xl">Open an asset to get started</div>
-      </div>
+      <Center h="full">
+        <Text fontSize="small" opacity={0.5}>
+          Open an asset to get started
+        </Text>
+      </Center>
     );
   }
 
